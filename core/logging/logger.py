@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Protocol
 import logging
 from core.config.loader import AppConfig
@@ -12,5 +14,13 @@ class Logger(Protocol):
 
 def get_logger(config: AppConfig) -> logging.Logger:
     logger = logging.getLogger("geoai")
-    logger.setLevel(logging.INFO)
+    if logger.handlers:
+        return logger
+
+    logger.setLevel(getattr(logging, config.log_level, logging.INFO))
+
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     return logger
