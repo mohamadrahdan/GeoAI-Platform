@@ -13,4 +13,5 @@ def create_app() -> FastAPI:
     # Routers
     app.include_router(health_router, tags=["system"])
 
+    container.logger.info("FastAPI app created and core container injected.")
     return app
