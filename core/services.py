@@ -4,11 +4,11 @@ from dataclasses import dataclass
 from typing import Optional
 
 from core.config.loader import AppConfig, load_config
-from core.logging.logger import get_loader, Logger
+from core.logging.logger import get_logger, Logger
 
 
 @dataclass
-class ServiceCountainer:
+class ServiceContainer:
     """
     A lightweight dependency container for core services.
     - Keeps initialization in one place
