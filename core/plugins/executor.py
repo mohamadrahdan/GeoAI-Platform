@@ -8,6 +8,8 @@ from core.plugins.interface import BasePlugin
 from core.plugins.registry import PluginRegistry
 from core.logging.logger import Logger
 
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from core.plugins.errors import PluginExecutionError, PluginTimeoutError
 
 @dataclass
 class PluginExecutor:
@@ -47,3 +49,23 @@ class PluginExecutor:
                 self.logger.warning("Plugin '%s' shutdown hook failed (ignored).", plugin_name)
 
         return result
+    
+    def run_with_timeout(
+        self,
+        plugin_name: str,
+        payload: Dict[str, Any],
+        timeout_seconds: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Run plugin with a timeout (best-effort).
+        Uses a thread pool to enforce time limits for sync plugin code.
+        """
+        timeout = timeout_seconds if timeout_seconds is not None else self.default_timeout_seconds
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(self.run, plugin_name, payload)
+            try:
+                return future.result(timeout=timeout)
+            except FuturesTimeoutError as exc:
+                self.logger.error("Plugin '%s' timed out after %s seconds", plugin_name, timeout)
+                raise PluginTimeoutError(f"Plugin '{plugin_name}' timed out after {timeout} seconds") from exc
