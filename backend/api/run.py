@@ -9,11 +9,9 @@ from core.plugins.executor import PluginExecutor
 
 router = APIRouter()
 
-
 class RunRequest(BaseModel):
     payload: Dict[str, Any] = Field(default_factory=dict)
     timeout_seconds: Optional[float] = None
-
 
 @router.post("/run/{plugin_name}")
 def run_plugin(plugin_name: str, body: RunRequest, request: Request) -> dict:
