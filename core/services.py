@@ -9,6 +9,11 @@ from core.logging.logger import get_logger, Logger
 from core.plugins.registry import PluginRegistry
 from core.plugins.discovery import discover_plugins
 
+from core.data_manager.local_fs import LocalFileSystemDataManager
+from core.data_manager.cache import SimpleCache
+from core.data_manager.base import BaseDataManager
+
+
 @dataclass
 class ServiceContainer:
     """
@@ -22,7 +27,8 @@ class ServiceContainer:
     logger: Logger
 
     # Placeholders for Phase 2+ components
-    data_manager: Optional[object] = None
+    data_manager: BaseDataManager
+    cache: SimpleCache
     plugin_registry: Optional[object] = None
     llm_engin: Optional[object] = None
     
@@ -35,14 +41,20 @@ class ServiceContainer:
         registry = PluginRegistry()
         discover_plugins("plugins", registry)
 
+        data_manager = LocalFileSystemDataManager(config.data_root)
+        cache = SimpleCache()
+
         logger.info("ServiceContainer initialized.")
         logger.info("Plugins discovered: %s", registry.list())
-        
-        return cls(config=config, 
-                   logger=logger,
-                   plugin_registry=registry,
-                   )
-    
+        logger.info("DataManager initialized at %s", config.data_root)
+
+        return cls(
+            config=config,
+            logger=logger,
+            plugin_registry=registry,
+            data_manager=data_manager,
+            cache=cache,
+        )
 
 
 # singleton_style accessor 
