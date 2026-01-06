@@ -39,7 +39,7 @@ class ServiceContainer:
         logger.info("Plugins discovered: %s", registry.list())
         
         return cls(config=config, 
-                   logger=logger
+                   logger=logger,
                    plugin_registry=registry,
                    )
     
