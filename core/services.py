@@ -13,6 +13,9 @@ from core.data_manager.local_fs import LocalFileSystemDataManager
 from core.data_manager.cache import SimpleCache
 from core.data_manager.base import BaseDataManager
 
+from core.llm.engine import BaseLLMEngine, NullLLMEngine
+
+
 
 @dataclass
 class ServiceContainer:
@@ -29,15 +32,18 @@ class ServiceContainer:
     # Placeholders for Phase 2+ components
     data_manager: BaseDataManager
     cache: SimpleCache
+    #llm_engin: Optional[object] = None
+    llm_engine: BaseLLMEngine
     plugin_registry: Optional[object] = None
-    llm_engin: Optional[object] = None
+    
+    
     
     @classmethod
     def build(cls) -> "ServiceContainer":
         """Build the container with minimal required services(config+logger)"""
         config = load_config()
         logger = get_logger(config)
-
+        llm_engine = NullLLMEngine()
         registry = PluginRegistry()
         discover_plugins("plugins", registry)
 
@@ -54,6 +60,7 @@ class ServiceContainer:
             plugin_registry=registry,
             data_manager=data_manager,
             cache=cache,
+            llm_engine=llm_engine,
         )
 
 
