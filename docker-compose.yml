@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: geoai-db
+    environment:
+      POSTGRES_DB: geoai
+      POSTGRES_USER: geoai
+      POSTGRES_PASSWORD: geoai
+    ports:
+      - "5432:5432"
+    volumes:
+      - geoai_pgdata:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geoai -d geoai"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  geoai_pgdata:
