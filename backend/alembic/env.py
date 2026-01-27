@@ -44,9 +44,17 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_type=True,
+        include_object=include_object,
     )
     with context.begin_transaction():
         context.run_migrations()
+
+def include_object(object, name, type_, reflected, compare_to):
+    # Ignore PostGIS / extension-managed tables
+    if type_ == "table" and name in {"spatial_ref_sys", "topology", "layer"}:
+        return False
+    return True
+
 
 def run_migrations_online() -> None:
     "Run migrations in online mode (engine + connection)"
@@ -63,6 +71,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             compare_type=True,
+            include_object=include_object,
         )
         with context.begin_transaction():
             context.run_migrations()
