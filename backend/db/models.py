@@ -7,6 +7,8 @@ from sqlalchemy import (String, DateTime, ForeignKey, Text, Index,)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.base import Base
+from geoalchemy2 import Geometry
+
 
 def new_id() -> str:
     return str(uuid.uuid4())
@@ -65,6 +67,10 @@ class Result(Base):
     uri: Mapped[str] = mapped_column(Text, nullable=False)
     metrics_json: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
     footprint_wkt: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    footprint_geom: Mapped[Optional[Any]] = mapped_column(
+        Geometry(geometry_type="GEOMETRY", srid=4326),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
 
     run: Mapped["Run"] = relationship(back_populates="results")
@@ -78,6 +84,7 @@ class Result(Base):
     __table_args__ = (
         Index("idx_results_run_id", "run_id"),
         Index("idx_results_type", "result_type"),
+        Index("idx_results_geom", "footprint_geom", postgresql_using="gist"),
     )
 
 
