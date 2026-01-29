@@ -2,3 +2,4 @@ SQLAlchemy>=2.0
 psycopg2-binary>=2.9
 alembic>=1.13
 geoalchemy2>=0.14
+shapely>=2.0
