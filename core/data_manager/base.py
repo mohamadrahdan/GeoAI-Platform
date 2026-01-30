@@ -29,3 +29,4 @@ class BaseDataManager(ABC):
     def save(self, relative_path: str, data: Any) -> None:
         "Save data to storage."
         raise NotImplementedError
+

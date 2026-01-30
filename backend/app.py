@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from fastapi import FastAPI
-
 from core.services import get_container
 from backend.api.health import router as health_router
-
 from backend.api.plugins import router as plugins_router
-
 from backend.api.run import router as run_router
+from api.routers.datasets import router as datasets_router
+
 
 def create_app() -> FastAPI:
     app = FastAPI(title="GeoAI-Platform", version="0.1.0")
@@ -25,6 +24,9 @@ def create_app() -> FastAPI:
 
     # inside create_app()
     app.include_router(run_router, tags=["plugins"])
+
+    app.include_router(datasets_router)
+
 
     container.logger.info("FastAPI app created and core container injected.")
     return app
