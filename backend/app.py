@@ -8,6 +8,7 @@ from backend.api.run import router as run_router
 from api.routers.datasets import router as datasets_router
 from api.routers.runs import router as runs_router
 from api.routers.results import router as results_router
+from api.routers.query import router as query_router
 
 
 def create_app() -> FastAPI:
@@ -32,6 +33,9 @@ def create_app() -> FastAPI:
     app.include_router(runs_router)
 
     app.include_router(results_router)
-    
+
+    app.include_router(query_router)
+
+
     container.logger.info("FastAPI app created and core container injected.")
     return app
