@@ -39,3 +39,11 @@ class LocalFileSystemDataManager(BaseDataManager):
         else:
             # simple text fallback
             path.write_text(str(data), encoding="utf-8")
+
+    def write_text(self, relpath: str, text: str) -> str:
+        """Write UTF-8 text under relpath and return a URI-like reference."""
+        path = self.resolve(relpath)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return f"file://{path.as_posix()}"
+
