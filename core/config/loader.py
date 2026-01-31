@@ -14,7 +14,7 @@ class AppConfig:
 
 
 def _read_env(key: str, default: Optional[str] = None) -> str:
-    return os.getenv(key, default) if os.getenv(key) is not None else (default or "")
+    return os.getenv("APP_ENV", "dev")
 
 
 def load_config() -> AppConfig:
