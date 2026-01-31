@@ -22,7 +22,9 @@ def list_runs_for_dataset(
 
     limit = max(1, min(limit, 500))
     offset = max(0, offset)
-    return list(uow.runs.list_by_dataset(dataset_id, limit=limit, offset=offset))
+
+    runs = uow.runs.list_by_dataset(dataset_id, limit=limit, offset=offset)
+    return [RunOut.model_validate(r) for r in runs]
 
 @router.get("/runs/{run_id}/results", response_model=List[ResultOut])
 def list_results_for_run(
@@ -37,7 +39,9 @@ def list_results_for_run(
 
     limit = max(1, min(limit, 1000))
     offset = max(0, offset)
-    return list(uow.results.list_by_run(run_id, limit=limit, offset=offset))
+
+    results = uow.results.list_by_run(run_id, limit=limit, offset=offset)
+    return [ResultOut.model_validate(x) for x in results]
 
 @router.get("/runs", response_model=List[RunOut])
 def query_runs(
@@ -50,8 +54,11 @@ def query_runs(
     offset = max(0, offset)
 
     if dataset_id:
-        return list(uow.runs.list_by_dataset(dataset_id, limit=limit, offset=offset))
-    return list(uow.runs.list(limit=limit, offset=offset))
+        runs = uow.runs.list_by_dataset(dataset_id, limit=limit, offset=offset)
+    else:
+        runs = uow.runs.list(limit=limit, offset=offset)
+
+    return [RunOut.model_validate(r) for r in runs]
 
 @router.get("/results", response_model=List[ResultOut])
 def query_results(
@@ -67,9 +74,11 @@ def query_results(
     # MVP: if both provided, return at most one match as a list
     if run_id and result_type:
         one = uow.results.get_by_run_and_type(run_id, result_type)
-        return [one] if one else []
+        return [ResultOut.model_validate(one)] if one else []
 
     if run_id:
-        return list(uow.results.list_by_run(run_id, limit=limit, offset=offset))
+        results = uow.results.list_by_run(run_id, limit=limit, offset=offset)
+    else:
+        results = uow.results.list(limit=limit, offset=offset)
 
-    return list(uow.results.list(limit=limit, offset=offset))
+    return [ResultOut.model_validate(x) for x in results]

@@ -22,11 +22,11 @@ def register_run(payload: RunCreate, uow: UnitOfWork = Depends(get_uow)) -> RunO
         params_json=payload.params,
     )
     uow.runs.add(run)
-    return run
+    return RunOut.model_validate(run)
 
 @router.get("/{run_id}", response_model=RunOut)
 def get_run(run_id: str, uow: UnitOfWork = Depends(get_uow)) -> RunOut:
     run = uow.runs.get(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found.")
-    return run
+    return RunOut.model_validate(run)

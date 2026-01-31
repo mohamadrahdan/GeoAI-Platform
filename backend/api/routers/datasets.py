@@ -18,14 +18,16 @@ def create_dataset(payload: DatasetCreate, uow: UnitOfWork = Depends(get_uow)) -
 
     ds = Dataset(name=payload.name, description=payload.description)
     uow.datasets.add(ds)
-    return ds
+    return DatasetOut.model_validate(ds)
+
 
 @router.get("/{dataset_id}", response_model=DatasetOut)
 def get_dataset(dataset_id: str, uow: UnitOfWork = Depends(get_uow)) -> DatasetOut:
     ds = uow.datasets.get(dataset_id)
     if not ds:
         raise HTTPException(status_code=404, detail="Dataset not found.")
-    return ds
+    return DatasetOut.model_validate(ds)
+
 
 @router.get("", response_model=List[DatasetOut])
 def list_datasets(
@@ -35,7 +37,8 @@ def list_datasets(
 ) -> List[DatasetOut]:
     limit = max(1, min(limit, 500))
     offset = max(0, offset)
-    return list(uow.datasets.list(limit=limit, offset=offset))
+    items = uow.datasets.list(limit=limit, offset=offset)
+    return [DatasetOut.model_validate(x) for x in items]
 
 @router.patch("/{dataset_id}", response_model=DatasetOut)
 def update_dataset(
@@ -51,7 +54,8 @@ def update_dataset(
         ds.name = payload.name
     if payload.description is not None:
         ds.description = payload.description
-    return ds
+    return DatasetOut.model_validate(ds)
+
 
 @router.delete("/{dataset_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_dataset(dataset_id: str, uow: UnitOfWork = Depends(get_uow)) -> None:

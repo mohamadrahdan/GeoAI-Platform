@@ -22,11 +22,13 @@ def persist_result(payload: ResultCreate, uow: UnitOfWork = Depends(get_uow)) ->
         footprint_wkt=payload.footprint_wkt,
     )
     uow.results.add(res)
-    return res
+    return ResultOut.model_validate(res)
+
 
 @router.get("/{result_id}", response_model=ResultOut)
 def get_result(result_id: str, uow: UnitOfWork = Depends(get_uow)) -> ResultOut:
     res = uow.results.get(result_id)
     if not res:
         raise HTTPException(status_code=404, detail="Result not found.")
-    return res
+    return ResultOut.model_validate(res)
+
