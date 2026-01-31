@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, Tuple
 from db.models import Run, Result
 from db.uow import UnitOfWork
 from core.data_manager.base import BaseDataManager
-from core.logging.logger import get_logger
+from core.logging.logger import get_module_logger
 
 from ingestion.validators import (
     ensure_dict,
@@ -15,7 +15,7 @@ from ingestion.validators import (
     extract_stac_footprint_wkt,
 )
 
-logger = get_logger(__name__)
+logger = get_module_logger(__name__)
 
 @dataclass(frozen=True)
 class SentinelMetadataIngestionInput:

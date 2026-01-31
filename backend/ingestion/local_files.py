@@ -8,9 +8,9 @@ from db.models import Dataset, Run, Result
 from db.uow import UnitOfWork
 # Minimal protocol-like usage assumed: write_text(path, text) -> uri
 from core.data_manager.base import BaseDataManager
-from core.logging.logger import get_logger
+from core.logging.logger import get_module_logger
 
-logger = get_logger(__name__)
+logger = get_module_logger(__name__)
 
 @dataclass(frozen=True)
 class LocalIngestionInput:

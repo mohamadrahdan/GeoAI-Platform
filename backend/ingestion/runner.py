@@ -3,9 +3,9 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from typing import Callable, TypeVar, Optional
-from core.logging.logger import get_logger
+from core.logging.logger import get_module_logger
 
-logger = get_logger(__name__)
+logger = get_module_logger(__name__)
 
 T = TypeVar("T")
 
