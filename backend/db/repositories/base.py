@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Generic, Iterable, Optional, Protocol, TypeVar
 
 TEntity = TypeVar("TEntity")
-TId = TypeVar("TId")
+TId = TypeVar("TId", contravariant=True)
 
 class BaseRepository(Protocol, Generic[TEntity, TId]):
     "Repository interface (storage abstraction)"
