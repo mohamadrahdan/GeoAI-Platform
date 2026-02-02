@@ -20,6 +20,7 @@ if config.config_file_name is not None:
 # IMPORTANT: import Base and models so metadata is populated
 from backend.db.base import Base  # noqa: E402
 from backend.db import models  # noqa: F401, E402
+from backend.db.models import Dataset, Run, Result, Feedback  # noqa: F401
 
 target_metadata = Base.metadata
 
