@@ -68,7 +68,7 @@ def upgrade() -> None:
     )
     op.create_index('idx_feedback_result_id', 'feedback', ['result_id'], unique=False)
     # ### end Alembic commands ###
-
+    op.execute("DROP INDEX IF EXISTS idx_results_footprint_geom;")
 
 def downgrade() -> None:
     """Downgrade schema."""
@@ -85,3 +85,4 @@ def downgrade() -> None:
     op.drop_table('runs')
     op.drop_table('datasets')
     # ### end Alembic commands ###
+    op.execute("CREATE INDEX IF NOT EXISTS idx_results_footprint_geom ON results USING gist (footprint_geom);")
