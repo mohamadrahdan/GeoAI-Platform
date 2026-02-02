@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Iterable, Optional
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
-from db.models import Run
+from backend.db.models import Run
 
 class RunRepository:
     def __init__(self, session: Session) -> None:

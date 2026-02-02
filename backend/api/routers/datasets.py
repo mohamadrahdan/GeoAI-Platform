@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from db.uow import UnitOfWork
+from backend.db.uow import UnitOfWork
 from backend.api.schemas.datasets import DatasetCreate, DatasetOut, DatasetUpdate
 from backend.api.deps import get_uow
 from backend.db.models import Dataset

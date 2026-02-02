@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
-from db.uow import UnitOfWork
-from api.deps import get_uow
-from api.schemas.runs import RunOut
-from api.schemas.results import ResultOut
+from backend.db.uow import UnitOfWork
+from backend.api.deps import get_uow
+from backend.api.schemas.runs import RunOut
+from backend.api.schemas.results import ResultOut
 
 router = APIRouter(tags=["query"])
 

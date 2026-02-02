@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from db.models import Run
-from db.uow import UnitOfWork
+from backend.db.models import Run
+from backend.db.uow import UnitOfWork
 from backend.api.schemas.runs import RunCreate, RunOut
 from backend.api.deps import get_uow
 from backend.api.schemas.datasets import DatasetOut

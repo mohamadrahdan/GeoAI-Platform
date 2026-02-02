@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from db.models import Result
-from db.uow import UnitOfWork
-from api.deps import get_uow
-from api.schemas.results import ResultCreate, ResultOut
+from backend.db.models import Result
+from backend.db.uow import UnitOfWork
+from backend.api.deps import get_uow
+from backend.api.schemas.results import ResultCreate, ResultOut
 
 router = APIRouter(prefix="/results", tags=["results"])
 

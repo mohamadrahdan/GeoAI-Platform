@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Iterable, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from db.models import Result
+from backend.db.models import Result
 
 class ResultRepository:
     def __init__(self, session: Session) -> None:
