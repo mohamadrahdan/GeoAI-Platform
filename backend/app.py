@@ -5,10 +5,11 @@ from core.services import get_container
 from backend.api.health import router as health_router
 from backend.api.plugins import router as plugins_router
 from backend.api.run import router as run_router
-from api.routers.datasets import router as datasets_router
-from api.routers.runs import router as runs_router
-from api.routers.results import router as results_router
-from api.routers.query import router as query_router
+from backend.api.routers.datasets import router as datasets_router
+from backend.api.routers.runs import router as runs_router
+from backend.api.routers.results import router as results_router
+from backend.api.routers.query import router as query_router
+
 
 
 def create_app() -> FastAPI:

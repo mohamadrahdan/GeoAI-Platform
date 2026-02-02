@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, List
 from sqlalchemy import (String, DateTime, ForeignKey, Text, Index,)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from db.base import Base
+from backend.db.base import Base
 from geoalchemy2 import Geometry
 
 

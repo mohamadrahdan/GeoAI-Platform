@@ -3,10 +3,10 @@ from __future__ import annotations
 from contextlib import AbstractContextManager
 from typing import Optional
 from sqlalchemy.orm import Session
-from db.session import SessionLocal
-from db.repositories.datasets import DatasetRepository
-from db.repositories.runs import RunRepository
-from db.repositories.results import ResultRepository
+from backend.db.session import SessionLocal
+from backend.db.repositories.datasets import DatasetRepository
+from backend.db.repositories.runs import RunRepository
+from backend.db.repositories.results import ResultRepository
 
 class UnitOfWork(AbstractContextManager["UnitOfWork"]):
     """

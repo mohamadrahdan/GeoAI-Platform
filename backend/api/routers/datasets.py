@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from db.models import Dataset
 from db.uow import UnitOfWork
-from api.deps import get_uow
-from api.schemas.datasets import DatasetCreate, DatasetOut, DatasetUpdate
+from backend.api.schemas.datasets import DatasetCreate, DatasetOut, DatasetUpdate
+from backend.api.deps import get_uow
+from backend.db.models import Dataset
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
 

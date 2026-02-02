@@ -27,8 +27,8 @@ if config.config_file_name is not None:
 
 # Import metadata
 # IMPORTANT: import Base and models so metadata is populated
-from db.base import Base  # noqa: E402
-import db.models  # noqa: F401, E402
+from backend.db.base import Base  # noqa: E402
+import backend.db.models  # noqa: F401, E402
 
 target_metadata = Base.metadata
 
