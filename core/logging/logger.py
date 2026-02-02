@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Protocol, Optional
 import logging
+from typing import Optional, Protocol
+
 from core.config.loader import AppConfig, load_config
-from core.logging.logger import get_logger as get_app_logger
 
 
 class Logger(Protocol):
@@ -14,6 +14,10 @@ class Logger(Protocol):
 
 
 def get_logger(config: AppConfig) -> logging.Logger:
+    """
+    App-level logger factory.
+    Configures the 'geoai' logger once and then reuses it.
+    """
     logger = logging.getLogger("geoai")
     if logger.handlers:
         return logger
@@ -26,15 +30,16 @@ def get_logger(config: AppConfig) -> logging.Logger:
     logger.addHandler(handler)
     return logger
 
-def get_module_logger(name: str, config: Optional[AppConfig] = None):
+
+def get_module_logger(name: str, config: Optional[AppConfig] = None) -> Logger:
     """
-    Returns a module-scoped logger.
-    Keeps backward compatibility with the app-wide logger factory.
+    Module-scoped logger helper.
+    Avoids circular imports by calling get_logger locally.
     """
     cfg = config or load_config()
-    base_logger = get_app_logger(cfg)
-    # If your Logger is a Protocol over std logging, this may be a no-op.
-    # You can also just return base_logger if it doesn't support getChild.
+    base_logger = get_logger(cfg)
+
+    # std logging supports getChild; if not, return base logger
     if hasattr(base_logger, "getChild"):
-        return base_logger.getChild(name)
+        return base_logger.getChild(name)  # type: ignore[attr-defined]
     return base_logger
