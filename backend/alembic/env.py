@@ -33,10 +33,6 @@ import db.models  # noqa: F401, E402
 target_metadata = Base.metadata
 
 
-print("DEBUG tables:", list(target_metadata.tables.keys()))
-print("DEBUG tables count:", len(target_metadata.tables))
-
-
 def get_url() -> str:
     """
     Read DB URL for migrations.
