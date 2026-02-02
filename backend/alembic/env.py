@@ -6,6 +6,8 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 import sys
 from pathlib import Path
+import geoalchemy2
+
 
 # Ensure backend/ is on sys.path so "db.*" imports work when running alembic from backend/
 BASE_DIR = Path(__file__).resolve().parents[1]  # points to backend/
