@@ -54,7 +54,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['run_id'], ['runs.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('idx_results_footprint_geom', 'results', ['footprint_geom'], unique=False, postgresql_using='gist')
     op.create_index('idx_results_geom', 'results', ['footprint_geom'], unique=False, postgresql_using='gist')
     op.create_index('idx_results_run_id', 'results', ['run_id'], unique=False)
     op.create_index('idx_results_type', 'results', ['result_type'], unique=False)
