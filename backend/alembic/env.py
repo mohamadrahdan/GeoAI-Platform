@@ -4,6 +4,14 @@ from pathlib import Path
 from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+import sys
+from pathlib import Path
+
+# Ensure backend/ is on sys.path so "db.*" imports work when running alembic from backend/
+BASE_DIR = Path(__file__).resolve().parents[1]  # points to backend/
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
 
 # Make project root importable
 # backend/alembic/env.py -> project root is two levels up
@@ -18,11 +26,15 @@ if config.config_file_name is not None:
 
 # Import metadata
 # IMPORTANT: import Base and models so metadata is populated
-from backend.db.base import Base  # noqa: E402
-from backend.db import models  # noqa: F401, E402
-from backend.db.models import Dataset, Run, Result, Feedback  # noqa: F401
+from db.base import Base  # noqa: E402
+import db.models  # noqa: F401, E402
 
 target_metadata = Base.metadata
+
+
+print("DEBUG tables:", list(target_metadata.tables.keys()))
+print("DEBUG tables count:", len(target_metadata.tables))
+
 
 def get_url() -> str:
     """
