@@ -16,9 +16,16 @@ class RunRepository:
         stmt = select(Run).order_by(Run.created_at.desc()).limit(limit).offset(offset)
         return self._session.scalars(stmt).all()
 
+    # def add(self, run: Run) -> Run:
+    #     self._session.add(run)
+    #     return run
+    
     def add(self, run: Run) -> Run:
         self._session.add(run)
+        self._session.flush()
+        self._session.refresh(run)
         return run
+
 
     def delete(self, run: Run) -> None:
         self._session.delete(run)
