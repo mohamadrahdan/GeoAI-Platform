@@ -16,9 +16,16 @@ class ResultRepository:
         stmt = select(Result).order_by(Result.created_at.desc()).limit(limit).offset(offset)
         return self._session.scalars(stmt).all()
 
+    # def add(self, result: Result) -> Result:
+    #     self._session.add(result)
+    #     return result
+    
     def add(self, result: Result) -> Result:
         self._session.add(result)
+        self._session.flush()
+        self._session.refresh(result)
         return result
+
 
     def delete(self, result: Result) -> None:
         self._session.delete(result)
