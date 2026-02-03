@@ -18,8 +18,14 @@ class DatasetRepository:
         stmt = select(Dataset).order_by(Dataset.created_at.desc()).limit(limit).offset(offset)
         return self._session.scalars(stmt).all()
 
+    # def add(self, dataset: Dataset) -> Dataset:
+    #     self._session.add(dataset)
+    #     return dataset
+    
     def add(self, dataset: Dataset) -> Dataset:
         self._session.add(dataset)
+        self._session.flush()
+        self._session.refresh(dataset)
         return dataset
 
     def delete(self, dataset: Dataset) -> None:

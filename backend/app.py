@@ -11,7 +11,6 @@ from backend.api.routers.results import router as results_router
 from backend.api.routers.query import router as query_router
 
 
-
 def create_app() -> FastAPI:
     app = FastAPI(title="GeoAI-Platform", version="0.1.0")
 
@@ -22,7 +21,6 @@ def create_app() -> FastAPI:
     # Routers
     app.include_router(health_router, tags=["system"])
 
-    
     # inside create_app()
     app.include_router(plugins_router, tags=["plugins"])
 
@@ -40,3 +38,5 @@ def create_app() -> FastAPI:
 
     container.logger.info("FastAPI app created and core container injected.")
     return app
+
+app = create_app()
