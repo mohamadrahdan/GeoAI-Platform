@@ -20,3 +20,4 @@ COPY . /app
 
 # Default command (dev baseline; overridden in compose if needed)
 CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
+
