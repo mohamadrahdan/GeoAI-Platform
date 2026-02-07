@@ -17,6 +17,10 @@ services:
       timeout: 3s
       retries: 20
 
+    restart: unless-stopped
+    networks:
+      - geoai-net
+
   backend:
     build:
       context: .
@@ -27,3 +31,13 @@ services:
       - "8000:8000"
     depends_on:
       - db
+
+    restart: unless-stopped
+    networks:
+      - geoai-net
+
+volumes:
+  geoai_pgdata:
+
+networks:
+  geoai-net:
