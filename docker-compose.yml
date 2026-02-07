@@ -17,5 +17,13 @@ services:
       timeout: 3s
       retries: 20
 
-volumes:
-  geoai_pgdata:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: geoai-backend:dev
+    container_name: geoai-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
