@@ -27,6 +27,9 @@ RUN pip install --retries 10 --timeout 120 -r /app/requirements.txt
 # Copy full repo (so core/ exists)
 COPY . /app
 
+# Ensure non-root user can write runtime dirs (dev cache/data)
+RUN chown -R appuser:appuser /app
+
 USER appuser
 
 CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
