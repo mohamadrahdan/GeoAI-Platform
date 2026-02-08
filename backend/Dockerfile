@@ -14,9 +14,15 @@ RUN apt-get update \
 # Create non-root user
 RUN useradd -m appuser
 
+
 # Install deps (cacheable layer)
 COPY backend/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+ENV PIP_DEFAULT_TIMEOUT=120 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
+#RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --retries 10 --timeout 120 -r /app/requirements.txt
+
 
 # Copy full repo (so core/ exists)
 COPY . /app

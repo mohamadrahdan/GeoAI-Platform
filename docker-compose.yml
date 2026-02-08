@@ -21,6 +21,8 @@ services:
     networks:
       - geoai-net
 
+    profiles: ["dev"]
+
   backend:
     build:
       context: .
@@ -42,6 +44,8 @@ services:
       interval: 10s
       timeout: 3s
       retries: 20
+      
+    profiles: ["dev"]
 
 volumes:
   geoai_pgdata:
