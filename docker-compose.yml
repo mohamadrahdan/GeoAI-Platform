@@ -2,12 +2,17 @@ services:
   db:
     image: postgis/postgis:15-3.3
     container_name: geoai-db
-    environment:
-      POSTGRES_DB: geoai
-      POSTGRES_USER: geoai
-      POSTGRES_PASSWORD: geoai
     ports:
       - "5432:5432"
+
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+
     volumes:
       - geoai_pgdata:/var/lib/postgresql/data
       - ./backend/db/init:/docker-entrypoint-initdb.d
@@ -23,6 +28,7 @@ services:
 
     profiles: ["dev"]
 
+
   backend:
     build:
       context: .
@@ -31,6 +37,13 @@ services:
     container_name: geoai-backend
     ports:
       - "8000:8000"
+
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      APP_ENV: ${APP_ENV}
+
     depends_on:
       db:
         condition: service_healthy
