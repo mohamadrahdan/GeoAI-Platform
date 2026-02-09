@@ -31,3 +31,9 @@ def load_config() -> AppConfig:
     data_root.mkdir(parents=True, exist_ok=True)
 
     return AppConfig(env=env, data_root=data_root, log_level=log_level)
+
+def get_database_url() -> str:
+    return os.getenv(
+        "DATABASE_URL",
+        "postgresql+psycopg2://geoai:geoai@localhost:5432/geoai"
+    )
