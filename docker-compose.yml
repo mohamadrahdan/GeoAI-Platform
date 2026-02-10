@@ -10,6 +10,9 @@ services:
         condition: service_healthy
     profiles: ["dev"]
 
+    networks:
+      - geoai-net
+
   db:
     image: postgis/postgis:15-3.3
     container_name: geoai-db
@@ -76,3 +79,4 @@ volumes:
 
 networks:
   geoai-net:
+    name: geoai-net
