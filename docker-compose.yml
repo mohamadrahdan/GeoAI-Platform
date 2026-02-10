@@ -1,4 +1,15 @@
 services:
+  migrate:
+    image: geoai-backend:dev
+    container_name: geoai-migrate
+    command: alembic upgrade head
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["dev"]
+
   db:
     image: postgis/postgis:15-3.3
     container_name: geoai-db
