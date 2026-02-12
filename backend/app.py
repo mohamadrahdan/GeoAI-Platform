@@ -11,9 +11,7 @@ from backend.api.routers.results import router as results_router
 from backend.api.routers.query import router as query_router
 
 
-def create_app() -> FastAPI:
-    app = create_app()
-    
+def create_app() -> FastAPI:    
     app = FastAPI(title="GeoAI-Platform", version="0.1.0")
 
     # Initialize core container once and store it in app state

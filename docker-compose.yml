@@ -25,7 +25,8 @@ services:
     container_name: geoai-migrate
     env_file:
       - .env
-    command: alembic upgrade head
+    working_dir: /app/backend
+    command: alembic -c alembic.ini upgrade head
     depends_on:
       db:
         condition: service_healthy
