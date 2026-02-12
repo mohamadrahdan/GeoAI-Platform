@@ -1,47 +1,35 @@
 services:
-  migrate:
-    image: geoai-backend:dev
-    container_name: geoai-migrate
-    command: alembic -c backend/alembic.ini upgrade head
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    profiles: ["dev"]
-
-    networks:
-      - geoai-net
-
   db:
     image: postgis/postgis:15-3.3
     container_name: geoai-db
-    ports:
-      - "5432:5432"
-
     env_file:
       - .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
-
+    ports:
+      - "5432:5432"
     volumes:
       - geoai_pgdata:/var/lib/postgresql/data
       - ./backend/db/init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U geoai -d geoai"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 20
-
-    restart: unless-stopped
-    networks:
-      - geoai-net
-
     profiles: ["dev"]
 
+  migrate:
+    image: geoai-backend:dev
+    container_name: geoai-migrate
+    env_file:
+      - .env
+    command: alembic upgrade head
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["dev"]
 
   backend:
     build:
@@ -49,33 +37,21 @@ services:
       dockerfile: backend/Dockerfile
     image: geoai-backend:dev
     container_name: geoai-backend
-    ports:
-      - "8000:8000"
-
     env_file:
       - .env
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      APP_ENV: ${APP_ENV}
-
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-
-    restart: unless-stopped
-    networks:
-      - geoai-net
-    
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 20
-      
     profiles: ["dev"]
 
 volumes:
   geoai_pgdata:
-
-networks:
-  geoai-net:
