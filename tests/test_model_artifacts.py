@@ -41,7 +41,6 @@ def test_registry_store_and_resolve_artifact() -> None:
             ModelVersion(1, 0, 0),
         )
 
-
         src = Path(tmp) / "weights.bin"
         src.write_bytes(b"abc")
 
