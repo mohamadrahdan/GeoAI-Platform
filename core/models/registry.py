@@ -1,36 +1,60 @@
 from __future__ import annotations
-from typing import Dict, List
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, Optional, Tuple
+from core.models.metadata import ModelMetadata, ModelVersion
+from core.models.artifacts import ArtifactRef, ArtifactStore 
 
-from core.models.metadata import ModelMetadata
+@dataclass
+class RegisteredModel:
+    metadata: ModelMetadata
+    versions: Dict[str, ModelVersion]
+    artifacts: Dict[Tuple[str, str], ArtifactRef]  # key: (version, filename) 
 
 class ModelRegistry:
-    """
-    In-memory registry for model metadata.
-    Responsible for registration and lookup.
-    """
+    def __init__(self, artifact_store: ArtifactStore) -> None:
+        self._artifact_store = artifact_store
+        self._models: Dict[str, RegisteredModel] = {}
 
-    def __init__(self) -> None:
-        self._store: Dict[str, Dict[str, ModelMetadata]] = {}
+    def register_model(self, metadata: ModelMetadata) -> None:
+        if metadata.name in self._models:
+            raise ValueError(f"Model already registered: {metadata.name}")
+        self._models[metadata.name] = RegisteredModel(
+            metadata=metadata,
+            versions={},
+            artifacts={},
+        )
 
-    def register(self, metadata: ModelMetadata) -> None:
-        name = metadata.name
-        version = str(metadata.version)
+    def add_version(self, model_name: str, version: ModelVersion) -> None:
+        m = self._require_model(model_name)
+        version_str = str(version)
 
-        if name not in self._store:
-            self._store[name] = {}
+        if version_str in m.versions:
+            raise ValueError(f"Version already exists: {model_name}@{version_str}")
 
-        if version in self._store[name]:
-            raise ValueError(f"Model {name}:{version} already registered.")
+        m.versions[version_str] = version
+        
+    def store_artifact(self, model_name: str, version: str, filename: str, src_path: Path) -> Path:
+        m = self._require_model(model_name)
+        if version not in m.versions:
+            raise ValueError(f"Unknown model version: {model_name}@{version}")
 
-        self._store[name][version] = metadata
+        ref = ArtifactRef(model_name=model_name, version=version, filename=filename)
+        stored_path = self._artifact_store.put(ref, src_path)
+        m.artifacts[(version, filename)] = ref
+        return stored_path
 
-    def get(self, name: str, version: str) -> ModelMetadata:
-        try:
-            return self._store[name][version]
-        except KeyError:
-            raise KeyError(f"Model {name}:{version} not found.")
+    def resolve_artifact(self, model_name: str, version: str, filename: str) -> Path:
+        m = self._require_model(model_name)
+        key = (version, filename)
+        if key not in m.artifacts:
+            # If registry has no mapping, still allow direct lookup by convention.
+            ref = ArtifactRef(model_name=model_name, version=version, filename=filename)
+            return self._artifact_store.get(ref)
 
-    def list_versions(self, name: str) -> List[str]:
-        if name not in self._store:
-            return []
-        return sorted(self._store[name].keys())
+        return self._artifact_store.get(m.artifacts[key])
+
+    def _require_model(self, model_name: str) -> RegisteredModel:
+        if model_name not in self._models:
+            raise ValueError(f"Model not registered: {model_name}")
+        return self._models[model_name]
