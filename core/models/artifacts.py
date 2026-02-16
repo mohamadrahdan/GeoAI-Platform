@@ -24,9 +24,15 @@ class ArtifactStore(Protocol):
     def exists(self, ref: ArtifactRef) -> bool:
         "Check artifact existence"
         ...
+
+@dataclass
 class LocalArtifactStore:
     def __init__(self, root_dir: Path) -> None:
-        self.root_dir = root_dir
+        self._root_dir = root_dir.resolve()
+
+    @property
+    def root_dir(self) -> Path:
+        return self._root_dir
 
     def put(self, ref: ArtifactRef, src_path: Path) -> Path:
         if not src_path.exists():
@@ -47,3 +53,4 @@ class LocalArtifactStore:
 
     def exists(self, ref: ArtifactRef) -> bool:
         return (self.root_dir / ref.relpath()).exists()
+

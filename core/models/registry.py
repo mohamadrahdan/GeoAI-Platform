@@ -18,6 +18,10 @@ class ModelRegistry:
         self._artifact_store = artifact_store
         self._models: Dict[str, RegisteredModel] = {}
 
+    @property
+    def artifact_store(self):
+        return self._artifact_store
+    
     def register_model(self, metadata: ModelMetadata) -> None:
         if metadata.name in self._models:
             raise ValueError(f"Model already registered: {metadata.name}")
