@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.artifacts import ArtifactRef, ArtifactStore 
+from core.models.version_resolver import VersionResolver
+
 
 @dataclass
 class RegisteredModel:
@@ -51,10 +53,16 @@ class ModelRegistry:
             # If registry has no mapping, still allow direct lookup by convention.
             ref = ArtifactRef(model_name=model_name, version=version, filename=filename)
             return self._artifact_store.get(ref)
-
         return self._artifact_store.get(m.artifacts[key])
 
     def _require_model(self, model_name: str) -> RegisteredModel:
         if model_name not in self._models:
             raise ValueError(f"Model not registered: {model_name}")
         return self._models[model_name]
+
+    def resolve_version(self, model_name: str, strategy: str) -> ModelVersion:
+        m = self._require_model(model_name)
+        if strategy == "latest":
+            return VersionResolver.resolve_latest(m.versions)
+        # otherwise treat strategy as exact version string
+        return VersionResolver.resolve_exact(m.versions, strategy)
