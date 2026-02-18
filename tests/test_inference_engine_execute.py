@@ -17,7 +17,6 @@ from core.models.contracts import ModelInput, ModelOutput, SpatialMetadata
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.registry import ModelRegistry
 
-
 # Dummy model for testing
 class DummyModel(BaseModel):
     def __init__(self) -> None:
@@ -29,7 +28,12 @@ class DummyModel(BaseModel):
             schema_version="v1",
         )
         super().__init__(metadata=meta)
-    def predict(self, x: ModelInput) -> ModelOutput:
+
+    def on_load(self) -> None:
+        # No-op for tests
+        return None
+
+    def on_predict(self, x: ModelInput) -> ModelOutput:
         # Deterministic output: prediction filled with mean of input
         mean_val = float(np.mean(x.data))
         pred = np.full((1, x.data.shape[1], x.data.shape[2]), mean_val, dtype=np.float32)
@@ -39,6 +43,10 @@ class DummyModel(BaseModel):
             confidence=None,
             extra={"dummy": True},
         )
+    def predict(self, x: ModelInput) -> ModelOutput:
+        # Keep predict delegating to the hook used by the base contract
+        return self.on_predict(x)
+
 # Fixtures
 @pytest.fixture
 def engine(tmp_path: Path) -> InferenceEngine:
