@@ -8,6 +8,8 @@ from core.common.exceptions import DataAccessError
 from core.data_manager.base import BaseDataManager
 from core.models.contracts import ModelInput, SpatialMetadata
 from core.inference.schemas import InferenceRequest
+from urllib.request import url2pathname
+
 
 def load_input_from_request(req: InferenceRequest, data_manager: BaseDataManager) -> ModelInput:
     "Load/convert the request input into a standardized ModelInput"
@@ -26,7 +28,12 @@ def load_payload_from_uri(uri: str, data_manager: BaseDataManager) -> Dict[str, 
 
     # absolute path
     if parsed.scheme == "file":
-        path = Path(parsed.path)
+        # Windows-safe conversion: file:///C:/... -> C:\...
+        raw_path = url2pathname(parsed.path)
+        # On Windows, urlparse gives "/C:/..." so remove the leading slash
+        if raw_path.startswith("\\") and len(raw_path) > 3 and raw_path[2] == ":":
+            raw_path = raw_path.lstrip("\\")
+        path = Path(raw_path)
         if not path.exists():
             raise DataAccessError(f"Input file not found: {path}")
         if path.suffix.lower() != ".json":
