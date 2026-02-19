@@ -100,7 +100,7 @@ def test_execute_with_file_uri(engine: InferenceEngine, tmp_path: Path) -> None:
     input_path.write_text(json.dumps(payload), encoding="utf-8")
     req = InferenceRequest(
         model_name="dummy_model",
-        input_uri=f"file://{input_path.as_posix()}",
+        input_uri=input_path.as_uri(),
     )
     resp = engine.execute(req)
     assert resp.output.prediction.shape == (1, 2, 2)
