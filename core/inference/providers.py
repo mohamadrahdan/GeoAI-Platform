@@ -5,13 +5,19 @@ from typing import Dict, Tuple
 from core.models.base import BaseModel
 from core.models.metadata import ModelMetadata
 from core.models.registry import ModelRegistry
+from abc import ABC, abstractmethod
+from core.models.base import BaseModel
 
 class BaseModelProvider(ABC):
     """Returns a concrete model instance for (name, version)."""
     @abstractmethod
     def get(self, model_name: str, version: str) -> BaseModel:
         raise NotImplementedError
-
+    
+    # Optional, but useful for tests and local runs
+    def register(self, model: BaseModel) -> None:
+        raise NotImplementedError("This provider does not support registration.")
+    
 @dataclass
 class InMemoryModelProvider(BaseModelProvider):
     """Simple provider for tests and local experiments.
