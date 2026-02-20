@@ -178,3 +178,33 @@ def test_execute_predict_failure_wrapped(engine: InferenceEngine) -> None:
     req = InferenceRequest(model_name="dummy_model", input_payload=payload)
     with pytest.raises(ExecutionError):
         engine.execute(req)
+
+def test_execute_includes_trace(engine: InferenceEngine) -> None:
+    payload = {
+        "data": np.ones((3, 2, 2), dtype=np.float32).tolist(),
+        "bands": ["R", "G", "B"],
+        "spatial": {"crs": "EPSG:4326", "bbox": [0, 0, 1, 1], "resolution": 10.0},
+    }
+
+    req = InferenceRequest(model_name="dummy_model", input_payload=payload)
+    resp = engine.execute(req)
+    assert resp.trace_id
+    assert len(resp.trace_id) >= 8
+    assert len(resp.events) >= 4  # validate + resolve_version + load_model + load_input + predict
+    assert any(e.name == "predict" and e.ok for e in resp.events)
+
+def test_trace_logs_are_emitted(engine: InferenceEngine, caplog) -> None:
+    payload = {
+        "data": np.ones((3, 2, 2), dtype=np.float32).tolist(),
+        "bands": ["R", "G", "B"],
+        "spatial": {"crs": "EPSG:4326", "bbox": [0, 0, 1, 1], "resolution": 10.0},
+    }
+    req = InferenceRequest(model_name="dummy_model", input_payload=payload)
+    with caplog.at_level("INFO"):
+        resp = engine.execute(req)
+    # Ensure some trace logs exist
+    joined = "\n".join([r.message for r in caplog.records])
+    assert f"trace={resp.trace_id}" in joined
+    assert "stage=validate" in joined
+    assert "stage=predict" in joined
+    assert "stage=end" in joined

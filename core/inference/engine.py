@@ -10,6 +10,8 @@ from core.models.registry import ModelRegistry
 from core.inference.io import load_input_from_request
 from core.inference.providers import BaseModelProvider
 from core.inference.schemas import InferenceRequest, InferenceResponse, TraceEvent
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from core.common.exceptions import InferenceTimeoutError, ExecutionError
 
 @dataclass(frozen=True)
 class InferenceContext:
@@ -33,6 +35,7 @@ class InferenceEngine:
         t0 = perf_counter()
         trace_id = self._make_trace_id(req)
         events: List[TraceEvent] = []
+        timings: Dict[str, float] = {}
 
         def log_event(name: str, start: float, ok: bool = True, detail: Optional[str] = None) -> None:
             ms = (perf_counter() - start) * 1000.0
@@ -96,28 +99,63 @@ class InferenceEngine:
             log_event("load_input", s, ok=False, detail=f"{type(e).__name__}: {e}")
             raise DataAccessError("Failed to load inference input.") from e
 
-        # predict (timeout handled already in 4.3.3 if you added it)
+        # predict(Read optional timeout from request parameters)
+        timeout_s_raw = req.parameters.get("timeout_s") if isinstance(req.parameters, dict) else None
+        timeout_s = float(timeout_s_raw) if timeout_s_raw is not None else None
+
         s = perf_counter()
         try:
-            y = model.predict(x)
+            if timeout_s is None:
+                y = model.predict(x)
+            else:
+                # Run predict in a separate thread to enforce a hard timeout
+                with ThreadPoolExecutor(max_workers=1) as ex:
+                    fut = ex.submit(model.predict, x)
+                    try:
+                        y = fut.result(timeout=timeout_s)
+                    except FuturesTimeoutError as e:
+                        raise InferenceTimeoutError(
+                            f"Inference timed out after {timeout_s:.3f}s for {req.model_name}@{version_str}"
+                        ) from e
+
             log_event("predict", s, ok=True)
+
         except InferenceTimeoutError as e:
-            log_event("predict", s, ok=False, detail=f"{type(e).__name__}: {e}")
+            log_event("predict", s, ok=False, detail=str(e))
             raise
+
         except Exception as e:
             log_event("predict", s, ok=False, detail=f"{type(e).__name__}: {e}")
             raise ExecutionError(f"Inference execution failed for {req.model_name}@{version_str}") from e
-        t_end = perf_counter()
-        timings: Dict[str, float] = {
-            "total": (t_end - t0) * 1000.0,
-        }
 
-        # optional: stage totals from events (if you want)
+        # build timings from events
         for ev in events:
             timings[ev.name] = ev.ms
+
+        # compute total execution time
+        total_ms = (perf_counter() - t0) * 1000.0
+        timings["total"] = total_ms
+
+        # final log
         self._ctx.logger.info(
             "trace=%s stage=end ok=1 total_ms=%.2f model=%s version=%s request_id=%s",
-            trace_id, timings["total"], req.model_name, version_str, req.request_id
+            trace_id,
+            total_ms,
+            req.model_name,
+            version_str,
+            req.request_id,
+        )
+
+        total_ms = (perf_counter() - t0) * 1000
+        timings["total"] = total_ms
+
+        self._ctx.logger.info(
+            "trace=%s stage=end ok=1 total_ms=%.2f model=%s version=%s request_id=%s",
+            trace_id,
+            total_ms,
+            req.model_name,
+            version_str,
+            req.request_id,
         )
 
         return InferenceResponse(
