@@ -97,6 +97,7 @@ class InferenceEngine:
             raise
 
         except Exception as e:
+            #self._ctx.logger.error("...", ..., exc_info=True)
             self._ctx.logger.exception(
                 "Inference failed model=%s version=%s request_id=%s",
                 req.model_name,
