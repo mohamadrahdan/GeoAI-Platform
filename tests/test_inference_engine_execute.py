@@ -17,6 +17,9 @@ from core.models.contracts import ModelInput, ModelOutput, SpatialMetadata
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.registry import ModelRegistry
 
+import time
+from core.common.exceptions import InferenceTimeoutError
+
 # Dummy model for testing
 class DummyModel(BaseModel):
     def __init__(self) -> None:
@@ -130,5 +133,48 @@ def test_execute_model_not_found(tmp_path: Path) -> None:
         model_name="unknown_model",
         input_payload=payload,
     )
+    with pytest.raises(ExecutionError):
+        engine.execute(req)
+
+
+
+
+class SlowModel(DummyModel):
+    def on_predict(self, x: ModelInput) -> ModelOutput:
+        time.sleep(0.2)
+        return super().on_predict(x)
+
+def test_execute_timeout(engine: InferenceEngine, tmp_path: Path) -> None:
+    # replace provider model with slow model
+    engine._ctx.model_provider.register(SlowModel())
+
+    payload = {
+        "data": np.ones((3, 2, 2), dtype=np.float32).tolist(),
+        "bands": ["R", "G", "B"],
+        "spatial": {"crs": "EPSG:4326", "bbox": [0, 0, 1, 1], "resolution": 10.0},
+    }
+    req = InferenceRequest(
+        model_name="dummy_model",
+        input_payload=payload,
+        parameters={"timeout_s": 0.05},
+    )
+    with pytest.raises(InferenceTimeoutError):
+        engine.execute(req)
+
+        
+
+class FailingModel(DummyModel):
+    def on_predict(self, x: ModelInput) -> ModelOutput:
+        raise RuntimeError("boom")
+
+def test_execute_predict_failure_wrapped(engine: InferenceEngine) -> None:
+    engine._ctx.model_provider.register(FailingModel())
+
+    payload = {
+        "data": np.ones((3, 2, 2), dtype=np.float32).tolist(),
+        "bands": ["R", "G", "B"],
+        "spatial": {"crs": "EPSG:4326", "bbox": [0, 0, 1, 1], "resolution": 10.0},
+    }
+    req = InferenceRequest(model_name="dummy_model", input_payload=payload)
     with pytest.raises(ExecutionError):
         engine.execute(req)
