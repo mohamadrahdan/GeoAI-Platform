@@ -9,11 +9,12 @@ from core.models.registry import ModelRegistry
 from core.inference.io import load_input_from_request
 from core.inference.providers import BaseModelProvider
 from core.inference.schemas import InferenceRequest, InferenceResponse
-
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from core.common.exceptions import DataAccessError, ExecutionError, InferenceTimeoutError
 
 @dataclass(frozen=True)
 class InferenceContext:
-    """Dependencies required to execute inference."""
+    "Dependencies required to execute inference"
 
     registry: ModelRegistry
     model_provider: BaseModelProvider
@@ -26,11 +27,17 @@ class InferenceEngine:
         self._ctx = ctx
 
     def execute(self, req: InferenceRequest) -> InferenceResponse:
-        """Execute an inference request end-to-end."""
+        "Execute an inference request end-to-end"
         t0 = perf_counter()
 
         req.validate_input()
 
+        # Validate request
+        try:
+            req.validate_input()
+        except Exception as e:
+            raise ExecutionError("Invalid inference request.") from e
+        
         # Resolve model version
         version_strategy = "latest" if req.version.strategy == "latest" else (req.version.value or "")
         try:
@@ -51,11 +58,55 @@ class InferenceEngine:
         t_resolve = perf_counter()
 
         # Load input
-        x = load_input_from_request(req=req, data_manager=self._ctx.data_manager)
-        t_input = perf_counter()
+        try:
+            x = load_input_from_request(req=req, data_manager=self._ctx.data_manager)
+        except DataAccessError:
+            # keep the original type for callers (API layer can map it)
+            raise
+        except Exception as e:
+            raise DataAccessError("Failed to load inference input.") from e
 
+        t_input = perf_counter()
+        
         # Predict
-        y = model.predict(x)
+        timeout_s = None
+        if isinstance(req.parameters, dict):
+            timeout_s = req.parameters.get("timeout_s")
+
+        try:
+            if timeout_s is None:
+                y = model.predict(x)
+            else:
+                with ThreadPoolExecutor(max_workers=1) as ex:
+                    fut = ex.submit(model.predict, x)
+                    try:
+                        y = fut.result(timeout=float(timeout_s))
+                    except FuturesTimeoutError as e:
+                        raise InferenceTimeoutError(
+                            f"Inference timed out after {timeout_s}s for "
+                            f"{req.model_name}@{version_str}"
+                        ) from e
+
+        except InferenceTimeoutError:
+            self._ctx.logger.error(
+                "Inference timeout model=%s version=%s request_id=%s",
+                req.model_name,
+                version_str,
+                req.request_id,
+            )
+            raise
+
+        except Exception as e:
+            self._ctx.logger.exception(
+                "Inference failed model=%s version=%s request_id=%s",
+                req.model_name,
+                version_str,
+                req.request_id,
+            )
+            raise ExecutionError(
+                f"Inference execution failed for {req.model_name}@{version_str}"
+            ) from e
+
         t_pred = perf_counter()
 
         timings: Dict[str, float] = {
