@@ -6,7 +6,6 @@ from typing import Any, Dict, Optional
 import numpy as np
 from core.models.contracts import ModelOutput
 
-
 @dataclass(frozen=True)
 class MetricResult:
     """
