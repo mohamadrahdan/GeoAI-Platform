@@ -4,6 +4,9 @@ from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel, Field
 from core.plugins.errors import PluginError, PluginExecutionError, PluginTimeoutError
 from core.plugins.executor import PluginExecutor
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+import numpy as np
 
 router = APIRouter()
 
@@ -27,7 +30,18 @@ def run_plugin(plugin_name: str, body: RunRequest, request: Request) -> dict:
             payload=body.payload,
             timeout_seconds=body.timeout_seconds,
         )
-        return {"status": "ok", "plugin": plugin_name, "result": result}
+
+        payload = {"status": "ok", "plugin": plugin_name, "result": result}
+
+        encoded = jsonable_encoder(
+            payload,
+            custom_encoder={
+                np.ndarray: lambda a: a.tolist(),
+                np.generic: lambda a: a.item(),
+            },
+        )
+
+        return JSONResponse(content=encoded)
     except PluginTimeoutError as exc:
         raise HTTPException(status_code=408, detail=str(exc)) from exc
     except PluginExecutionError as exc:
