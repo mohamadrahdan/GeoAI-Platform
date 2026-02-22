@@ -37,6 +37,7 @@ def create_app() -> FastAPI:
 
 
     container.logger.info("FastAPI app created and core container injected.")
+    
     return app
 
 app = create_app()
