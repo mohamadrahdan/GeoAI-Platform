@@ -1,12 +1,29 @@
-$root = Get-Location
-$exclude = '\\.venv\\|\\.git\\|__pycache__|\\.pytest_cache\\'
+param(
+    [int]$MaxDepth = 3
+)
 
-Write-Host $root.Path
+$ExcludeNames = @('.git', '.venv', '.pytest_cache', '__pycache__', 'node_modules', '.next', 'dist', 'build')
 
-Get-ChildItem -Path $root -Recurse -Directory -Force |
-Where-Object { $_.FullName -notmatch $exclude } |
-Sort-Object FullName |
-ForEach-Object {
-    $depth = ($_.FullName -split '\\').Count - ($root.Path -split '\\').Count
-    (' ' * ($depth * 2)) + '|-- ' + $_.Name
+function Show-Tree {
+    param(
+        [string]$Path,
+        [int]$Depth,
+        [int]$MaxDepth
+    )
+
+    if ($Depth -ge $MaxDepth) { return }
+
+    $dirs = Get-ChildItem -LiteralPath $Path -Directory -Force |
+        Where-Object { $ExcludeNames -notcontains $_.Name } |
+        Sort-Object Name
+
+    foreach ($d in $dirs) {
+        $indent = ' ' * (($Depth + 1) * 2)
+        Write-Output ("$indent|-- " + $d.Name)
+        Show-Tree -Path $d.FullName -Depth ($Depth + 1) -MaxDepth $MaxDepth
+    }
 }
+
+$root = (Get-Location).Path
+Write-Output $root
+Show-Tree -Path $root -Depth 0 -MaxDepth $MaxDepth
