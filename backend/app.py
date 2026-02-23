@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from fastapi import FastAPI
 from core.services import get_container
 from backend.api.health import router as health_router
@@ -9,7 +8,7 @@ from backend.api.routers.datasets import router as datasets_router
 from backend.api.routers.runs import router as runs_router
 from backend.api.routers.results import router as results_router
 from backend.api.routers.query import router as query_router
-
+from backend.api.inference import router as inference_router
 
 def create_app() -> FastAPI:    
     app = FastAPI(title="GeoAI-Platform", version="0.1.0")
@@ -26,6 +25,8 @@ def create_app() -> FastAPI:
 
     # inside create_app()
     app.include_router(run_router, tags=["plugins"])
+
+    app.include_router(inference_router, tags=["inference"])
 
     app.include_router(datasets_router)
 
