@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { env } from "@/app/config/env";
 import { apiGet } from "@/services/api/apiClient";
 import type { HealthResponse } from "@/services/api/types";
+import { usePlugins } from "@/features/plugins/usePlugins";
+import { useDatasets } from "@/features/datasets/useDatasets";
 
 type UiState =
   | { kind: "idle" }
@@ -11,6 +13,8 @@ type UiState =
 
 export function HomePage() {
   const [state, setState] = useState<UiState>({ kind: "idle" });
+  const pluginsState = usePlugins();
+  const datasetsState = useDatasets();
 
   useEffect(() => {
     let mounted = true;
@@ -43,6 +47,28 @@ export function HomePage() {
       <p>
         API Base URL: <code>{env.apiBaseUrl}</code>
       </p>
+
+      <h2>Plugins</h2>
+      {pluginsState.kind === "loading" && <p>Loading plugins...</p>}
+      {pluginsState.kind === "error" && <p>{pluginsState.message}</p>}
+      {pluginsState.kind === "ok" && (
+        <ul>
+          {pluginsState.data.plugins.map((name) => (
+            <li key={name}>{name}</li>
+          ))}
+        </ul>
+      )}
+
+      <h2>Datasets</h2>
+      {datasetsState.kind === "loading" && <p>Loading datasets...</p>}
+      {datasetsState.kind === "error" && <p>{datasetsState.message}</p>}
+      {datasetsState.kind === "ok" && (
+        <ul>
+          {datasetsState.data.datasets.map((d) => (
+            <li key={d.id}>{d.name}</li>
+          ))}
+        </ul>
+      )}
 
       <div style={{ marginTop: 16 }}>
         <h3>Backend Health</h3>
