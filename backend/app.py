@@ -9,9 +9,21 @@ from backend.api.routers.runs import router as runs_router
 from backend.api.routers.results import router as results_router
 from backend.api.routers.query import router as query_router
 from backend.api.inference import router as inference_router
+from fastapi.middleware.cors import CORSMiddleware
 
 def create_app() -> FastAPI:    
     app = FastAPI(title="GeoAI-Platform", version="0.1.0")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     # Initialize core container once and store it in app state
     container = get_container()
