@@ -49,8 +49,6 @@ export function HomePage() {
       </p>
 
       <h2>Plugins</h2>
-      {pluginsState.kind === "loading" && <p>Loading plugins...</p>}
-      {pluginsState.kind === "error" && <p>{pluginsState.message}</p>}
       {pluginsState.kind === "ok" && (
         <ul>
           {pluginsState.data.plugins.map((name) => (
@@ -64,7 +62,7 @@ export function HomePage() {
       {datasetsState.kind === "error" && <p>{datasetsState.message}</p>}
       {datasetsState.kind === "ok" && (
         <ul>
-          {datasetsState.data.datasets.map((d) => (
+          {datasetsState.data.map((d) => (
             <li key={d.id}>{d.name}</li>
           ))}
         </ul>

@@ -23,6 +23,4 @@ export type Dataset = {
   created_at: string;
 };
 
-export type DatasetsResponse = {
-  datasets: Dataset[];
-};
+export type DatasetsResponse = Dataset[];
