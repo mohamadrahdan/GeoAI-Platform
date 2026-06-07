@@ -29,7 +29,7 @@ export function HomePage() {
 
       {/* Inference Pipeline Configuration Form */}
       <div style={{ background: "#f8f9fa", padding: 20, borderRadius: 8, marginBottom: 20 }}>
-        <h3>🧱 Run Inference Pipeline</h3>
+        <h3> Run Inference Pipeline</h3>
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 12 }}>
             <label style={{ display: "block", marginBottom: 6 }}>Select Plugin:</label>
@@ -73,7 +73,7 @@ export function HomePage() {
               cursor: "pointer"
             }}
           >
-            {execState.kind === "executing" ? "Processing Engine Active..." : "Trigger Model Inference 🚀"}
+            {execState.kind === "executing" ? "Processing Engine Active..." : "Trigger Model Inference "}
           </button>
         </form>
       </div>
