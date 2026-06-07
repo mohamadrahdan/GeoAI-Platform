@@ -4,8 +4,8 @@ import { useDatasets } from "@/features/datasets/useDatasets";
 import { useExecuteInference } from "@/features/inference/useExecuteInference";
 
 export function HomePage() {
-  const pluginsState = usePlugins();
-  const datasetsState = useDatasets();
+  const { state: pluginsState, refetch: refetchPlugins } = usePlugins();
+  const { state: datasetsState, refetch: refetchDatasets } = useDatasets();
   const { state: execState, execute, reset } = useExecuteInference();
 
   const [selectedPlugin, setSelectedPlugin] = useState("");
@@ -27,9 +27,55 @@ export function HomePage() {
       <h1>🌍 GeoAI Platform Dashboard</h1>
       <p style={{ color: "#666" }}>Modular Geospatial Analysis & Environmental Monitoring</p>
 
+      {/* Core Setup Monitoring Sections (Plugins & Datasets Status) */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+        
+        {/* Plugins Loading/Error Context */}
+        <div style={{ border: "1px solid #ddd", padding: 16, borderRadius: 6 }}>
+          <h4>Active Core Plugins</h4>
+          {pluginsState.kind === "loading" && <div style={{ color: "#666" }}>🌀 Loading system plugins...</div>}
+          {pluginsState.kind === "error" && (
+            <div>
+              <p style={{ color: "#c5221f", margin: "4px 0" }}>⚠️ Error: {pluginsState.message}</p>
+              <button onClick={refetchPlugins} style={{ padding: "4px 8px" }}>Retry Connection 🔄</button>
+            </div>
+          )}
+          {pluginsState.kind === "ok" && pluginsState.data.plugins.length === 0 && (
+            <p style={{ color: "#888", fontStyle: "italic" }}>No custom plugins loaded in core context.</p>
+          )}
+          {pluginsState.kind === "ok" && pluginsState.data.plugins.length > 0 && (
+            <ul style={{ paddingLeft: 20, margin: 0 }}>
+              {pluginsState.data.plugins.map(name => <li key={name}><code>{name}</code></li>)}
+            </ul>
+          )}
+        </div>
+
+        {/* Datasets Loading/Error/Empty State Context */}
+        <div style={{ border: "1px solid #ddd", padding: 16, borderRadius: 6 }}>
+          <h4>Available Storage Datasets</h4>
+          {datasetsState.kind === "loading" && <div style={{ color: "#666" }}>🌀 Accessing PostGIS storage layer...</div>}
+          {datasetsState.kind === "error" && (
+            <div>
+              <p style={{ color: "#c5221f", margin: "4px 0" }}>⚠️ Error: {datasetsState.message}</p>
+              <button onClick={refetchDatasets} style={{ padding: "4px 8px" }}>Retry Connection 🔄</button>
+            </div>
+          )}
+          {datasetsState.kind === "ok" && datasetsState.data.length === 0 && (
+            <div style={{ padding: "8px", background: "#fff3cd", color: "#856404", borderRadius: 4 }}>
+              📭 <strong>Empty State:</strong> Database is online, but no active spatial layers found.
+            </div>
+          )}
+          {datasetsState.kind === "ok" && datasetsState.data.length > 0 && (
+            <ul style={{ paddingLeft: 20, margin: 0 }}>
+              {datasetsState.data.map(d => <li key={d.id}>{d.name}</li>)}
+            </ul>
+          )}
+        </div>
+      </div>
+
       {/* Inference Pipeline Configuration Form */}
       <div style={{ background: "#f8f9fa", padding: 20, borderRadius: 8, marginBottom: 20 }}>
-        <h3> Run Inference Pipeline</h3>
+        <h3>🧱 Run Inference Pipeline</h3>
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 12 }}>
             <label style={{ display: "block", marginBottom: 6 }}>Select Plugin:</label>
@@ -51,7 +97,7 @@ export function HomePage() {
             <select 
               value={selectedDataset} 
               onChange={(e) => setSelectedDataset(e.target.value)}
-              disabled={datasetsState.kind !== "ok" || execState.kind === "executing"}
+              disabled={pluginsState.kind !== "ok" || datasetsState.data.length === 0 || execState.kind === "executing"}
               style={{ width: "100%", padding: 8, borderRadius: 4 }}
             >
               <option value="">-- Choose a Dataset --</option>
@@ -73,7 +119,7 @@ export function HomePage() {
               cursor: "pointer"
             }}
           >
-            {execState.kind === "executing" ? "Processing Engine Active..." : "Trigger Model Inference "}
+            {execState.kind === "executing" ? "Processing Engine Active..." : "Trigger Model Inference 🚀"}
           </button>
         </form>
       </div>
@@ -87,6 +133,7 @@ export function HomePage() {
         {execState.kind === "executing" && (
           <div style={{ color: "#0056b3" }}>
             <p>⏳ <strong>Inference Running:</strong> Processing geospatial layers inside container...</p>
+            <div style={{ fontSize: "12px", color: "#666" }}>Note: Execution might take up to 60s for high-resolution arrays.</div>
           </div>
         )}
 
@@ -102,7 +149,7 @@ export function HomePage() {
 
         {execState.kind === "error" && (
           <div style={{ background: "#fce8e6", padding: 16, borderRadius: 6, color: "#c5221f" }}>
-            <h4>❌ Pipeline Execution Failure</h4>
+            <h4>❌ Pipeline Execution Failure (Network Timeout / Crash)</h4>
             <p><code>{execState.message}</code></p>
             <button onClick={reset} style={{ marginTop: 8, padding: "6px 12px" }}>Reset Console</button>
           </div>
