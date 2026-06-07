@@ -97,7 +97,7 @@ export function HomePage() {
             <select 
               value={selectedDataset} 
               onChange={(e) => setSelectedDataset(e.target.value)}
-              disabled={pluginsState.kind !== "ok" || datasetsState.data.length === 0 || execState.kind === "executing"}
+              disabled={pluginsState.kind !== "ok" || datasetsState.kind !== "ok" || datasetsState.data?.length === 0 || execState.kind === "executing"}
               style={{ width: "100%", padding: 8, borderRadius: 4 }}
             >
               <option value="">-- Choose a Dataset --</option>
