@@ -3,6 +3,7 @@ import { usePlugins } from "@/features/plugins/usePlugins";
 import { useDatasets } from "@/features/datasets/useDatasets";
 import { useExecuteInference } from "@/features/inference/useExecuteInference";
 import { RunConfigurationForm } from "@/features/inference/RunConfigurationForm";
+import { ExecutionStatusMonitor } from "@/features/inference/ExecutionStatusMonitor";
 import type { RunParameters } from "@/services/api/types";
 
 export function HomePage() {
@@ -113,7 +114,6 @@ export function HomePage() {
             </select>
           </div>
 
-          {/* New Granular Parameter Injection Component Location */}
           <RunConfigurationForm 
             onParamChange={setCustomParams} 
             disabled={execState.kind === "executing"}
@@ -137,34 +137,22 @@ export function HomePage() {
         </form>
       </div>
 
-      {/* Execution Monitor & Response Display */}
+      {/* Execution Monitor Block using the new Status Component */}
       <div style={{ background: "#fff", border: "1px solid #ddd", padding: 20, borderRadius: 8 }}>
         <h3>📊 Execution & Monitoring Console</h3>
         
-        {execState.kind === "idle" && <p style={{ color: "#888" }}>Waiting for pipeline trigger...</p>}
-        
-        {execState.kind === "executing" && (
-          <div style={{ color: "#0056b3" }}>
-            <p>⏳ <strong>Inference Running:</strong> Processing geospatial layers inside container...</p>
-            <div style={{ fontSize: "12px", color: "#666" }}>Note: Execution might take up to 60s for high-resolution arrays.</div>
-          </div>
-        )}
+        <ExecutionStatusMonitor 
+          kind={execState.kind} 
+          message={execState.kind === "error" ? execState.message : execState.kind === "success" ? "Payload processing complete." : ""} 
+        />
 
+        {/* Retain the strict JSON dump display for raw success verification */}
         {execState.kind === "success" && (
-          <div style={{ background: "#e6f4ea", padding: 16, borderRadius: 6, color: "#137333" }}>
-            <h4>✅ Inference Completed Successfully!</h4>
-            <pre style={{ background: "#fff", padding: 12, borderRadius: 4, overflowX: "auto" }}>
+          <div style={{ marginTop: 16, background: "#e6f4ea", padding: 12, borderRadius: 4 }}>
+            <pre style={{ background: "#fff", padding: 12, borderRadius: 4, overflowX: "auto", margin: 0 }}>
               {JSON.stringify(execState.data, null, 2)}
             </pre>
             <button onClick={reset} style={{ marginTop: 8, padding: "6px 12px" }}>Clear Console</button>
-          </div>
-        )}
-
-        {execState.kind === "error" && (
-          <div style={{ background: "#fce8e6", padding: 16, borderRadius: 6, color: "#c5221f" }}>
-            <h4>❌ Pipeline Execution Failure (Network Timeout / Crash)</h4>
-            <p><code>{execState.message}</code></p>
-            <button onClick={reset} style={{ marginTop: 8, padding: "6px 12px" }}>Reset Console</button>
           </div>
         )}
       </div>
