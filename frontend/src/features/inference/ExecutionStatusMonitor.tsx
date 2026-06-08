@@ -1,5 +1,3 @@
-import React from "react";
-
 interface ExecutionStatusMonitorProps {
   kind: "idle" | "executing" | "success" | "error";
   message: string;
