@@ -39,3 +39,16 @@ export type InferenceResponse = {
   result_path?: string;
   artifacts?: string[];
 };
+
+export interface RunParameters {
+  mode: string;
+  resolution?: number;
+  spatial_filter?: string;
+  [key: string]: unknown;
+}
+
+export interface RunExecutionRequest {
+  plugin_name: string;
+  dataset_id: string;
+  parameters: RunParameters;
+}
