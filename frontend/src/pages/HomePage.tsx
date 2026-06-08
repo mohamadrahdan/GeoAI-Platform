@@ -2,6 +2,8 @@ import { useState } from "react";
 import { usePlugins } from "@/features/plugins/usePlugins";
 import { useDatasets } from "@/features/datasets/useDatasets";
 import { useExecuteInference } from "@/features/inference/useExecuteInference";
+import { RunConfigurationForm } from "@/features/inference/RunConfigurationForm";
+import type { RunParameters } from "@/services/api/types";
 
 export function HomePage() {
   const { state: pluginsState, refetch: refetchPlugins } = usePlugins();
@@ -10,6 +12,10 @@ export function HomePage() {
 
   const [selectedPlugin, setSelectedPlugin] = useState("");
   const [selectedDataset, setSelectedDataset] = useState("");
+  
+  const [customParams, setCustomParams] = useState<RunParameters>({
+    mode: "standard_inference"
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +24,7 @@ export function HomePage() {
     execute({
       plugin_name: selectedPlugin,
       dataset_id: selectedDataset,
-      parameters: { mode: "standard_inference" }
+      parameters: customParams
     });
   };
 
@@ -107,6 +113,12 @@ export function HomePage() {
             </select>
           </div>
 
+          {/* New Granular Parameter Injection Component Location */}
+          <RunConfigurationForm 
+            onParamChange={setCustomParams} 
+            disabled={execState.kind === "executing"}
+          />
+
           <button 
             type="submit"
             disabled={!selectedPlugin || !selectedDataset || execState.kind === "executing"}
@@ -116,7 +128,8 @@ export function HomePage() {
               padding: "10px 16px",
               border: "none",
               borderRadius: 4,
-              cursor: "pointer"
+              cursor: "pointer",
+              marginTop: 16
             }}
           >
             {execState.kind === "executing" ? "Processing Engine Active..." : "Trigger Model Inference 🚀"}
