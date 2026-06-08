@@ -104,7 +104,7 @@ export function HomePage() {
             <select 
               value={selectedDataset} 
               onChange={(e) => setSelectedDataset(e.target.value)}
-              disabled={pluginsState.kind !== "ok" || datasetsState.kind !== "ok" || datasetsState.data?.length === 0 || execState.kind === "executing"}
+              disabled={pluginsState.kind !== "ok" || datasetsState.kind !== "ok" || execState.kind === "executing"}
               style={{ width: "100%", padding: 8, borderRadius: 4 }}
             >
               <option value="">-- Choose a Dataset --</option>
@@ -121,7 +121,7 @@ export function HomePage() {
 
           <button 
             type="submit"
-            disabled={!selectedPlugin || !selectedDataset || execState.kind === "executing"}
+            disabled={!selectedPlugin || execState.kind === "executing"}
             style={{
               background: execState.kind === "executing" ? "#ccc" : "#007bff",
               color: "#fff",
