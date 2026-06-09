@@ -4,6 +4,7 @@ import { useDatasets } from "@/features/datasets/useDatasets";
 import { useExecuteInference } from "@/features/inference/useExecuteInference";
 import { RunConfigurationForm } from "@/features/inference/RunConfigurationForm";
 import { ExecutionStatusMonitor } from "@/features/inference/ExecutionStatusMonitor";
+import { ResultPreviewPanel } from "@/features/inference/ResultPreviewPanel";
 import type { RunParameters } from "@/services/api/types";
 
 export function HomePage() {
@@ -104,7 +105,7 @@ export function HomePage() {
             <select 
               value={selectedDataset} 
               onChange={(e) => setSelectedDataset(e.target.value)}
-              disabled={pluginsState.kind !== "ok" || datasetsState.kind !== "ok" || execState.kind === "executing"}
+              disabled={pluginsState.kind !== "ok" || datasetsState.kind !== "ok" || datasetsState.data?.length === 0 || execState.kind === "executing"}
               style={{ width: "100%", padding: 8, borderRadius: 4 }}
             >
               <option value="">-- Choose a Dataset --</option>
@@ -121,7 +122,7 @@ export function HomePage() {
 
           <button 
             type="submit"
-            disabled={!selectedPlugin || execState.kind === "executing"}
+            disabled={!selectedPlugin || !selectedDataset || execState.kind === "executing"}
             style={{
               background: execState.kind === "executing" ? "#ccc" : "#007bff",
               color: "#fff",
@@ -137,22 +138,26 @@ export function HomePage() {
         </form>
       </div>
 
-      {/* Execution Monitor Block using the new Status Component */}
+      {/* Execution Monitor Block */}
       <div style={{ background: "#fff", border: "1px solid #ddd", padding: 20, borderRadius: 8 }}>
         <h3>📊 Execution & Monitoring Console</h3>
         
         <ExecutionStatusMonitor 
           kind={execState.kind} 
-          message={execState.kind === "error" ? (execState.message || "Unknown execution error occurred.") : execState.kind === "success" ? "Payload processing complete." : ""}
+          message={execState.kind === "error" ? (execState.message || "Unknown execution error occurred.") : execState.kind === "success" ? "Payload processing complete." : ""} 
         />
 
-        {/* Retain the strict JSON dump display for raw success verification */}
+        {/* Strategic Injection of the Result Preview Panel on Success */}
         {execState.kind === "success" && (
-          <div style={{ marginTop: 16, background: "#e6f4ea", padding: 12, borderRadius: 4 }}>
-            <pre style={{ background: "#fff", padding: 12, borderRadius: 4, overflowX: "auto", margin: 0 }}>
-              {JSON.stringify(execState.data, null, 2)}
-            </pre>
-            <button onClick={reset} style={{ marginTop: 8, padding: "6px 12px" }}>Clear Console</button>
+          <div style={{ marginTop: 16 }}>
+            <ResultPreviewPanel data={execState.data as Record<string, unknown>} />
+            
+            <div style={{ marginTop: 16, background: "#e6f4ea", padding: 12, borderRadius: 4 }}>
+              <pre style={{ background: "#fff", padding: 12, borderRadius: 4, overflowX: "auto", margin: 0 }}>
+                {JSON.stringify(execState.data, null, 2)}
+              </pre>
+              <button onClick={reset} style={{ marginTop: 8, padding: "6px 12px" }}>Clear Console</button>
+            </div>
           </div>
         )}
       </div>
