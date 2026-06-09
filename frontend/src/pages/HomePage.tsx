@@ -143,7 +143,7 @@ export function HomePage() {
         
         <ExecutionStatusMonitor 
           kind={execState.kind} 
-          message={execState.kind === "error" ? execState.message : execState.kind === "success" ? "Payload processing complete." : ""} 
+          message={execState.kind === "error" ? (execState.message || "Unknown execution error occurred.") : execState.kind === "success" ? "Payload processing complete." : ""}
         />
 
         {/* Retain the strict JSON dump display for raw success verification */}
