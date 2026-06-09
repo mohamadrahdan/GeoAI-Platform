@@ -145,6 +145,7 @@ export function HomePage() {
         <ExecutionStatusMonitor 
           kind={execState.kind} 
           message={execState.kind === "error" ? (execState.message || "Unknown execution error occurred.") : execState.kind === "success" ? "Payload processing complete." : ""} 
+          onReset={reset}
         />
 
         {/* Strategic Injection of the Result Preview Panel on Success */}
@@ -156,7 +157,6 @@ export function HomePage() {
               <pre style={{ background: "#fff", padding: 12, borderRadius: 4, overflowX: "auto", margin: 0 }}>
                 {JSON.stringify(execState.data, null, 2)}
               </pre>
-              <button onClick={reset} style={{ marginTop: 8, padding: "6px 12px" }}>Clear Console</button>
             </div>
           </div>
         )}
