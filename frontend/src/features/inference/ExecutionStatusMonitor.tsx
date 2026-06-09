@@ -1,54 +1,74 @@
 interface ExecutionStatusMonitorProps {
   kind: "idle" | "executing" | "success" | "error";
   message: string;
+  onReset?: () => void;
 }
 
-export function ExecutionStatusMonitor({ kind, message }: ExecutionStatusMonitorProps) {
+export function ExecutionStatusMonitor({ kind, message, onReset }: ExecutionStatusMonitorProps) {
   if (kind === "idle") {
     return (
-      <div style={{ color: "#888", fontStyle: "italic", padding: "12px 0" }}>
-        📡 System standby. Ready to capture pipeline stream...
+      <div style={{ padding: 12, background: "#f7fafc", color: "#4a5568", borderRadius: 4, fontStyle: "italic" }}>
+        Console ready. Awaiting inference trigger pipeline activation...
       </div>
     );
   }
 
   return (
-    <div style={{ marginTop: 16, borderRadius: 6, overflow: "hidden", border: "1px solid #eee" }}>
-      {/* Dynamic Status Header Badge */}
-      <div style={{
-        padding: "10px 16px",
-        color: "#fff",
-        fontWeight: "bold",
-        backgroundColor: kind === "executing" ? "#0056b3" : kind === "success" ? "#137333" : "#c5221f"
-      }}>
-        {kind === "executing" && "⏳ CORE ENGINE ACTIVE (PROCESSING OVERLAYS)"}
+    <div style={{ marginTop: 12 }}>
+      {/* 1. Dynamic Status Indicator Bar */}
+      <div 
+        style={{ 
+          padding: 12, 
+          borderRadius: 4, 
+          fontWeight: "bold",
+          background: kind === "executing" ? "#e8f0fe" : kind === "success" ? "#e6f4ea" : "#fce8e6",
+          color: kind === "executing" ? "#1a73e8" : kind === "success" ? "#137333" : "#c5221f"
+        }}
+      >
+        {kind === "executing" && "🌀 INFERENCE ENGINE ACTIVE (CONTAINER PROCESSING)"}
         {kind === "success" && "✅ PIPELINE EXECUTION SUCCESSFUL"}
         {kind === "error" && "❌ CONTAINER PIPELINE CRASHED"}
       </div>
 
-      {/* Visual Progress Steps Map */}
-      <div style={{ padding: 16, backgroundColor: "#fafafa" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: "12px" }}>
-          <span style={{ fontWeight: "bold", color: "#137333" }}>1. Init Container ✔</span>
-          <span style={{ fontWeight: kind !== "executing" ? "bold" : "normal" }}>2. Feature Extraction</span>
-          <span style={{ fontWeight: kind === "success" ? "bold" : "normal" }}>3. PostGIS Spatial Sync</span>
-        </div>
-
-        {/* CSS Animated Progress Track simulation */}
-        <div style={{ width: "100%", height: "6px", backgroundColor: "#e0e0e0", borderRadius: 3, overflow: "hidden" }}>
-          <div style={{
-            height: "100%",
-            width: kind === "executing" ? "65%" : kind === "success" ? "100%" : "10%",
-            backgroundColor: kind === "error" ? "#c5221f" : "#28a745",
-            transition: "width 0.5s ease-in-out"
-          }} />
-        </div>
-
-        {/* Operational Context Logs Wrapper */}
-        <div style={{ marginTop: 12, fontSize: "13px", color: "#555" }}>
-          <strong>Status Report:</strong> {message || "Awaiting hardware resource allocation..."}
-        </div>
+      {/* 2. Self-Correcting Animated Progress Track */}
+      <div style={{ background: "#e2e8f0", height: 8, borderRadius: 4, marginTop: 8, overflow: "hidden" }}>
+        <div 
+          style={{ 
+            background: kind === "error" ? "#e53e3e" : "#3182ce", 
+            height: "100%", 
+            width: kind === "executing" ? "65%" : "100%",
+            transition: "width 0.5s ease-in-out",
+            animation: kind === "executing" ? "pulse 1.5s infinite" : "none"
+          }} 
+        />
       </div>
+
+      {/* 3. Detailed Runtime Messages & Logs */}
+      {message && (
+        <p style={{ fontSize: 13, color: "#4a5568", marginTop: 8, paddingLeft: 4 }}>
+          <strong>Status Report:</strong> {message}
+        </p>
+      )}
+
+      {/* 4. Integrated Operational Reset Control Block */}
+      {onReset && kind !== "executing" && (
+        <button
+          onClick={onReset}
+          style={{
+            marginTop: 12,
+            padding: "6px 12px",
+            background: "#edf2f7",
+            color: "#4a5568",
+            border: "1px solid #cbd5e0",
+            borderRadius: 4,
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: "500"
+          }}
+        >
+          Reset Console State 🔄
+        </button>
+      )}
     </div>
   );
 }
