@@ -139,32 +139,39 @@ export function HomePage() {
         </form>
       </div>
 
-      {/* Execution Monitor Block */}
-      <div style={{ background: "#fff", border: "1px solid #ddd", padding: 20, borderRadius: 8 }}>
-        <h3>📊 Execution & Monitoring Console</h3>
+      {/*BOTTOM SECTION: SIDE-BY-SIDE LAYOUT*/}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "24px", marginTop: "24px", alignItems: "start" }}>
         
-        <ExecutionStatusMonitor 
-          kind={execState.kind} 
-          message={execState.kind === "error" ? (execState.message || "Unknown execution error occurred.") : execState.kind === "success" ? "Payload processing complete." : ""} 
-          onReset={reset}
-        />
+        {/* LEFT COLUMN: Execution Monitor & Analytics Preview */}
+        <div style={{ background: "#fff", border: "1px solid #ddd", padding: 20, borderRadius: 8 }}>
+          <h3>📊 Execution & Monitoring Console</h3>
+          
+          <ExecutionStatusMonitor 
+            kind={execState.kind} 
+            message={execState.kind === "error" ? (execState.message || "Unknown execution error occurred.") : execState.kind === "success" ? "Payload processing complete." : ""} 
+            onReset={reset}
+          />
 
-        {/* Strategic Injection of the Result Preview Panel on Success */}
-        {execState.kind === "success" && (
-          <div style={{ marginTop: 16 }}>
-            <ResultPreviewPanel data={execState.data as Record<string, unknown>} />
-            
-            <div style={{ marginTop: 16, background: "#e6f4ea", padding: 12, borderRadius: 4 }}>
-              <pre style={{ background: "#fff", padding: 12, borderRadius: 4, overflowX: "auto", margin: 0 }}>
-                {JSON.stringify(execState.data, null, 2)}
-              </pre>
+          {execState.kind === "success" && (
+            <div style={{ marginTop: 16 }}>
+              <ResultPreviewPanel data={execState.data as Record<string, unknown>} />
+              
+              <div style={{ marginTop: 16, background: "#e6f4ea", padding: 12, borderRadius: 4 }}>
+                <pre style={{ background: "#fff", padding: 12, borderRadius: 4, overflowX: "auto", margin: 0, fontSize: "12px" }}>
+                  {JSON.stringify(execState.data, null, 2)}
+                </pre>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Core Geospatial Visualization MVP Layer with Dynamic Context Injection */}
-      <GeoMap inferenceData={execState.data as Record<string, unknown>} />
+        {/* RIGHT COLUMN: Core Geospatial Visualization MVP Layer */}
+        <div style={{ position: "sticky", top: "24px" }}>
+          <GeoMap inferenceData={execState.data as Record<string, unknown>} />
+        </div>
+
+      </div>
+      {/* ----------------- END BOTTOM SECTION ----------------- */}
       
     </div>
   );
