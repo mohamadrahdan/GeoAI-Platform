@@ -163,8 +163,8 @@ export function HomePage() {
         )}
       </div>
 
-      {/* Core Geospatial Visualization MVP Layer */}
-      <GeoMap />
+      {/* Core Geospatial Visualization MVP Layer with Dynamic Context Injection */}
+      <GeoMap inferenceData={execState.data as Record<string, unknown>} />
       
     </div>
   );
