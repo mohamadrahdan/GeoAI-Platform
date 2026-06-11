@@ -1,9 +1,9 @@
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import type { GeoJsonObject } from "geojson";
+import type { Feature, Polygon } from "geojson";
 
-// Simulated GeoJSON Polygon representing a detected environmental zone in Isfahan region
-const sampleLandslideVector: GeoJsonObject = {
+// Explicitly typed GeoJSON Feature representing a detected landslide zone
+const sampleLandslideVector: Feature<Polygon> = {
   type: "Feature",
   properties: {
     zone_name: "Isfahan Mountainous Hazard Area A",
@@ -24,12 +24,11 @@ const sampleLandslideVector: GeoJsonObject = {
 };
 
 export function GeoMap() {
-  // Custom style injector for geospatial vector layers
   const vectorStyle = {
-    color: "#e53e3e",       // Border line crimson color
-    weight: 3,             // Border thickness
-    fillColor: "#feb2b2",  // Filled inner area translucent red
-    fillOpacity: 0.5       // Visible transparency factor for underlay tracking
+    color: "#e53e3e",
+    weight: 3,
+    fillColor: "#feb2b2",
+    fillOpacity: 0.5
   };
 
   return (
@@ -46,13 +45,11 @@ export function GeoMap() {
           zoom={11} 
           style={{ height: "100%", width: "100%" }}
         >
-          {/* Base Topographic Tile Mapping Layer */}
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* Core Geospatial Vector Injected Component */}
           <GeoJSON 
             data={sampleLandslideVector} 
             style={vectorStyle} 
