@@ -32,7 +32,7 @@ export function HomePage() {
   };
 
   return (
-    <div style={{ padding: "24px 40px", width: "100%", maxWidth: "100vw", boxSizing: "border-box", fontFamily: "sans-serif" }}>
+    <div style={{ padding: "24px 40px", width: "100vw", maxWidth: "100%", boxSizing: "border-box", fontFamily: "sans-serif" }}>
       <h1>🌍 GeoAI Platform Dashboard</h1>
       <p style={{ color: "#666" }}>Modular Geospatial Analysis & Environmental Monitoring</p>
 
@@ -134,7 +134,7 @@ export function HomePage() {
               marginTop: 16
             }}
           >
-            {execState.kind === "executing" ? "Processing Engine Active..." : "Trigger Model Inference 🚀"}
+            {execState.kind === "executing" ? "Processing Engine Active..." : "Trigger Model Inference"}
           </button>
         </form>
       </div>
