@@ -1,4 +1,3 @@
-import { GeoMap } from "@/features/map/GeoMap";
 import { useState } from "react";
 import { usePlugins } from "@/features/plugins/usePlugins";
 import { useDatasets } from "@/features/datasets/useDatasets";
@@ -7,6 +6,7 @@ import { RunConfigurationForm } from "@/features/inference/RunConfigurationForm"
 import { ExecutionStatusMonitor } from "@/features/inference/ExecutionStatusMonitor";
 import { ResultPreviewPanel } from "@/features/inference/ResultPreviewPanel";
 import type { RunParameters } from "@/services/api/types";
+import { GeoMap } from "@/features/map/GeoMap";
 
 export function HomePage() {
   const { state: pluginsState, refetch: refetchPlugins } = usePlugins();
