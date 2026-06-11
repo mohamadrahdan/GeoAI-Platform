@@ -1,3 +1,4 @@
+import { GeoMap } from "@/features/map/GeoMap";
 import { useState } from "react";
 import { usePlugins } from "@/features/plugins/usePlugins";
 import { useDatasets } from "@/features/datasets/useDatasets";
@@ -161,6 +162,10 @@ export function HomePage() {
           </div>
         )}
       </div>
+
+      {/* Core Geospatial Visualization MVP Layer */}
+      <GeoMap />
+      
     </div>
   );
 }
