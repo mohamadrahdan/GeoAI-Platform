@@ -1,0 +1,26 @@
+version: '3.8'
+
+# This file OVERRIDES docker-compose.yml for production deployments
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  geoai-backend:
+    # In production, we don't bind mount the source code (./app:/app)
+    volumes:
+      - geoai_data:/app/data
+      - geoai_logs:/app/logs
+    environment:
+      - APP_ENV=production
+      - LOG_LEVEL=WARNING
+    restart: always
+
+  geoai-db:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+# define named volumes managed by Docker (independent of container lifecycle)
+volumes:
+  postgres_data:
+  geoai_data:
+  geoai_logs:

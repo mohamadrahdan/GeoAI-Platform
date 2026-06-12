@@ -181,3 +181,5 @@ cython_debug/
 .cursorindexingignore
 /.vscode
 tree.text
+
+echo "logs/" >> .gitignore
