@@ -12,11 +12,20 @@ class BaseConfig:
         
         # Database Configuration
         self.POSTGRES_USER = os.getenv("POSTGRES_USER", "geoai")
-        self.POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "geoai")
+        # SECURITY FIX: Ensure password is provided for non-dev environments 
+        # or at least not empty if explicitly set
+        self.POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+        
+        # FAIL-FAST VALIDATION
+        if not self.POSTGRES_PASSWORD:
+             if self.APP_ENV in ["production", "prod"]:
+                 raise ValueError("CRITICAL ERROR: POSTGRES_PASSWORD must be set in production!")
+             else:
+                 self.POSTGRES_PASSWORD = "geoai"
+
         self.POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
         self.POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
         self.POSTGRES_DB = os.getenv("POSTGRES_DB", "geoai")
-        
         self.DATA_ROOT_RAW = os.getenv("DATA_ROOT", str(Path.cwd() / "data"))
 
     @property
