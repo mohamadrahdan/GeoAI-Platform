@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
-
+from core.config.settings import settings
 
 @dataclass(frozen=True)
 class AppConfig:
@@ -12,28 +10,19 @@ class AppConfig:
     data_root: Path
     log_level: str
 
-
-def _read_env(key: str, default: Optional[str] = None) -> str:
-    return os.getenv("APP_ENV", "dev")
-
-
 def load_config() -> AppConfig:
     """
-    Minimal config loader:
-    - Reads environment variables
-    - Applies safe defaults
+    Loads the core application configuration, utilizing the environment-aware
+    settings profile from settings.py.
     """
-    env = _read_env("APP_ENV", "dev").strip()
-    data_root_raw = _read_env("DATA_ROOT", str(Path.cwd() / "data"))
-    log_level = _read_env("LOG_LEVEL", "INFO").strip().upper()
-
-    data_root = Path(data_root_raw).expanduser().resolve()
+    data_root = Path(settings.DATA_ROOT_RAW).expanduser().resolve()
     data_root.mkdir(parents=True, exist_ok=True)
 
-    return AppConfig(env=env, data_root=data_root, log_level=log_level)
+    return AppConfig(
+        env=settings.APP_ENV,
+        data_root=data_root,
+        log_level=settings.LOG_LEVEL
+    )
 
 def get_database_url() -> str:
-    return os.getenv(
-        "DATABASE_URL",
-        "postgresql+psycopg2://geoai:geoai@localhost:5432/geoai"
-    )
+    return settings.DATABASE_URL
