@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 @dataclass
 class LLMContext:
     "Minimal context container:(MVP)"
+
     messages: List[Dict[str, str]] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 

@@ -2,6 +2,7 @@ from pathlib import Path
 from core.evaluation.comparison import RunMetrics
 from core.evaluation.persistence import EvaluationStore
 
+
 def test_save_and_load_run(tmp_path: Path):
     store = EvaluationStore(root_dir=tmp_path)
     run = RunMetrics(

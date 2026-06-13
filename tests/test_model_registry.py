@@ -3,6 +3,7 @@ from core.models.registry import ModelRegistry
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.artifacts import LocalArtifactStore
 
+
 def test_registry_register_and_version(tmp_path):
     # Initialize the store and registry exactly as Phase 4 architecture dictates
     store = LocalArtifactStore(root_dir=tmp_path)
@@ -13,7 +14,7 @@ def test_registry_register_and_version(tmp_path):
         task="segmentation",
         framework="pytorch",
         version=ModelVersion(1, 0, 0),
-        schema_version="v1"
+        schema_version="v1",
     )
     # Use the correct Phase 4 methods
     registry.register_model(meta)
@@ -24,6 +25,7 @@ def test_registry_register_and_version(tmp_path):
     assert resolved.minor == 0
     assert resolved.patch == 0
 
+
 def test_registry_prevents_duplicate_versions(tmp_path):
     store = LocalArtifactStore(root_dir=tmp_path)
     registry = ModelRegistry(artifact_store=store)
@@ -32,9 +34,9 @@ def test_registry_prevents_duplicate_versions(tmp_path):
         task="segmentation",
         framework="pytorch",
         version=ModelVersion(1, 0, 0),
-        schema_version="v1"
+        schema_version="v1",
     )
-    
+
     registry.register_model(meta)
     registry.add_version("duplicate-model", meta.version)
 

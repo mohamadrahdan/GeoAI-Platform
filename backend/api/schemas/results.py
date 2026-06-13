@@ -13,6 +13,7 @@ class ResultCreate(BaseModel):
     metrics: Optional[Dict[str, Any]] = None
     footprint_wkt: Optional[str] = None
 
+
 class ResultOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str

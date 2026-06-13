@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 from backend.db.models import Run, Result
 from backend.db.uow import UnitOfWork
 from core.data_manager.base import BaseDataManager
@@ -17,14 +16,18 @@ from backend.ingestion.validators import (
 
 logger = get_module_logger(__name__)
 
+
 @dataclass(frozen=True)
 class SentinelMetadataIngestionInput:
     dataset_id: str
-    metadata: Dict[str, Any]          # already loaded JSON dict
-    source_name: str = "sentinel"     # e.g., "sentinelhub" or "stac"
+    metadata: Dict[str, Any]  # already loaded JSON dict
+    source_name: str = "sentinel"  # e.g., "sentinelhub" or "stac"
     item_id: Optional[str] = None
 
-def ingest_sentinel_metadata(inp: SentinelMetadataIngestionInput, dm: BaseDataManager) -> str:
+
+def ingest_sentinel_metadata(
+    inp: SentinelMetadataIngestionInput, dm: BaseDataManager
+) -> str:
     """
     Stores raw metadata and registers a DB run/result.
     Returns run_id.
@@ -54,7 +57,10 @@ def ingest_sentinel_metadata(inp: SentinelMetadataIngestionInput, dm: BaseDataMa
             run_id=run.id,
             result_type="sentinel_metadata",
             uri=uri,
-            metrics_json={"source_name": inp.source_name, "item_id": inp.item_id or md.get("id")},
+            metrics_json={
+                "source_name": inp.source_name,
+                "item_id": inp.item_id or md.get("id"),
+            },
             footprint_wkt=footprint_wkt,
         )
         uow.results.add(res)
@@ -63,6 +69,10 @@ def ingest_sentinel_metadata(inp: SentinelMetadataIngestionInput, dm: BaseDataMa
 
         logger.info(
             "Sentinel metadata ingestion completed",
-            extra={"dataset_id": inp.dataset_id, "run_id": run.id, "item_id": inp.item_id or md.get("id")},
+            extra={
+                "dataset_id": inp.dataset_id,
+                "run_id": run.id,
+                "item_id": inp.item_id or md.get("id"),
+            },
         )
         return run.id

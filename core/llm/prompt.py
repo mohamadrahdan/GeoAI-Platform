@@ -6,8 +6,10 @@ from typing import Dict
 @dataclass(frozen=True)
 class PromptTemplate:
     "Minimal prompt template with safe formatting"
+
     name: str
     template: str
+
     def render(self, variables: Dict[str, str]) -> str:
         # Using str.format is ok here for MVP; keep variables controlled.
         try:
@@ -15,6 +17,7 @@ class PromptTemplate:
         except KeyError as exc:
             missing = str(exc).strip("'")
             raise KeyError(f"Missing prompt variable: {missing}") from exc
+
 
 # A tiny built-in catalog (can be extended later)
 SYSTEM_SUMMARY = PromptTemplate(

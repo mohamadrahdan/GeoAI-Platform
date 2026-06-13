@@ -16,6 +16,7 @@ class VersionSpec(BaseModel):
 
 class InferenceRequest(BaseModel):
     "Standard inference request contract"
+
     model_config = ConfigDict(protected_namespaces=())
 
     model_name: str = Field(..., min_length=1)
@@ -51,8 +52,10 @@ class TraceEvent(BaseModel):
     ok: int
     error: Optional[str] = None
 
+
 class InferenceResponse(BaseModel):
     "Standard inference response contract"
+
     model_config = ConfigDict(
         protected_namespaces=(),
         arbitrary_types_allowed=True,

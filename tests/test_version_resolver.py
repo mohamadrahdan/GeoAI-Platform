@@ -1,6 +1,7 @@
 from core.models.version_resolver import VersionResolver
 from core.models.metadata import ModelVersion
 
+
 def test_resolve_exact():
     versions = {
         "1.0.0": ModelVersion(1, 0, 0),
@@ -9,6 +10,7 @@ def test_resolve_exact():
 
     result = VersionResolver.resolve_exact(versions, "1.0.0")
     assert result.minor == 0
+
 
 def test_resolve_latest():
     versions = {

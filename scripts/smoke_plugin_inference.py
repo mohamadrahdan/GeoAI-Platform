@@ -3,6 +3,8 @@ import sys
 import requests
 
 API_URL = os.getenv("SMOKE_API_URL", "http://localhost:8000")
+
+
 def main() -> int:
     payload = {
         "payload": {
@@ -30,7 +32,7 @@ def main() -> int:
         },
         "timeout_seconds": 10,
     }
-    
+
     r = requests.post(f"{API_URL}/run/model_adapter", json=payload, timeout=15)
     if r.status_code != 200:
         raise RuntimeError(f"Plugin inference failed: {r.status_code} {r.text}")
@@ -41,6 +43,7 @@ def main() -> int:
         raise RuntimeError("No output returned from plugin inference")
     print("Smoke plugin inference passed: /run/model_adapter OK")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

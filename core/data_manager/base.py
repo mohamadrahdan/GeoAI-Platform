@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
+
 class BaseDataManager(ABC):
     """
     Abstract interface for data access.
@@ -29,7 +30,7 @@ class BaseDataManager(ABC):
     def save(self, relative_path: str, data: Any) -> None:
         "Save data to storage."
         raise NotImplementedError
-    
+
     @abstractmethod
     def write_text(self, relpath: str, text: str) -> str:
         "Write text content under a relative path and return a URI/reference"

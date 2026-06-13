@@ -11,7 +11,8 @@ from backend.api.routers.query import router as query_router
 from backend.api.inference import router as inference_router
 from fastapi.middleware.cors import CORSMiddleware
 
-def create_app() -> FastAPI:    
+
+def create_app() -> FastAPI:
     app = FastAPI(title="GeoAI-Platform", version="0.1.0")
 
     app.add_middleware(
@@ -48,9 +49,9 @@ def create_app() -> FastAPI:
 
     app.include_router(query_router)
 
-
     container.logger.info("FastAPI app created and core container injected.")
-    
+
     return app
+
 
 app = create_app()

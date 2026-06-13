@@ -11,7 +11,9 @@ from core.inference.schemas import InferenceRequest
 from urllib.request import url2pathname
 
 
-def load_input_from_request(req: InferenceRequest, data_manager: BaseDataManager) -> ModelInput:
+def load_input_from_request(
+    req: InferenceRequest, data_manager: BaseDataManager
+) -> ModelInput:
     "Load/convert the request input into a standardized ModelInput"
     if req.input_payload is not None:
         return payload_to_model_input(req.input_payload)
@@ -21,6 +23,7 @@ def load_input_from_request(req: InferenceRequest, data_manager: BaseDataManager
 
     payload = load_payload_from_uri(req.input_uri, data_manager=data_manager)
     return payload_to_model_input(payload)
+
 
 def load_payload_from_uri(uri: str, data_manager: BaseDataManager) -> Dict[str, Any]:
     "Load a JSON payload from either file:// or a relative path under data_root"
@@ -37,7 +40,9 @@ def load_payload_from_uri(uri: str, data_manager: BaseDataManager) -> Dict[str, 
         if not path.exists():
             raise DataAccessError(f"Input file not found: {path}")
         if path.suffix.lower() != ".json":
-            raise DataAccessError(f"Only JSON inputs are supported for file:// URIs (got: {path.suffix})")
+            raise DataAccessError(
+                f"Only JSON inputs are supported for file:// URIs (got: {path.suffix})"
+            )
         try:
             return json.loads(path.read_text(encoding="utf-8"))
         except Exception as e:
@@ -50,9 +55,12 @@ def load_payload_from_uri(uri: str, data_manager: BaseDataManager) -> Dict[str, 
             raise DataAccessError(f"Input not found under data_root: {rel}")
         data = data_manager.load(rel)
         if not isinstance(data, dict):
-            raise DataAccessError(f"Expected JSON object at {rel}, got: {type(data).__name__}")
+            raise DataAccessError(
+                f"Expected JSON object at {rel}, got: {type(data).__name__}"
+            )
         return data
     raise DataAccessError(f"Unsupported input_uri scheme: {parsed.scheme}")
+
 
 def payload_to_model_input(payload: Dict[str, Any]) -> ModelInput:
     "Convert a JSON-like payload into ModelInput"

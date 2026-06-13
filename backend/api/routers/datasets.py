@@ -9,12 +9,17 @@ from backend.db.models import Dataset
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
 
+
 @router.post("", response_model=DatasetOut, status_code=status.HTTP_201_CREATED)
-def create_dataset(payload: DatasetCreate, uow: UnitOfWork = Depends(get_uow)) -> DatasetOut:
+def create_dataset(
+    payload: DatasetCreate, uow: UnitOfWork = Depends(get_uow)
+) -> DatasetOut:
     # Prevent duplicates by name (simple MVP rule)
     existing = uow.datasets.get_by_name(payload.name)
     if existing:
-        raise HTTPException(status_code=409, detail="Dataset with this name already exists.")
+        raise HTTPException(
+            status_code=409, detail="Dataset with this name already exists."
+        )
 
     ds = Dataset(name=payload.name, description=payload.description)
     uow.datasets.add(ds)
@@ -39,6 +44,7 @@ def list_datasets(
     offset = max(0, offset)
     items = uow.datasets.list(limit=limit, offset=offset)
     return [DatasetOut.model_validate(x) for x in items]
+
 
 @router.patch("/{dataset_id}", response_model=DatasetOut)
 def update_dataset(

@@ -1,16 +1,18 @@
 from __future__ import annotations
-from typing import Optional, Dict, Any
 import numpy as np
 from core.evaluation.metrics import BaseMetric, MetricResult
 from core.models.contracts import ModelOutput
 
+
 def _binarize(x: np.ndarray, threshold: float = 0.5) -> np.ndarray:
     return (x >= threshold).astype(np.uint8)
+
 
 class AccuracyMetric(BaseMetric):
     @property
     def name(self) -> str:
         return "accuracy"
+
     def compute(self, y_pred: ModelOutput, y_true: np.ndarray) -> MetricResult:
         y_hat = _binarize(y_pred.prediction)
         y_true_bin = _binarize(y_true)
@@ -24,10 +26,12 @@ class AccuracyMetric(BaseMetric):
             details={"correct": int(correct), "total": int(total)},
         )
 
+
 class IoUMetric(BaseMetric):
     @property
     def name(self) -> str:
         return "iou"
+
     def compute(self, y_pred: ModelOutput, y_true: np.ndarray) -> MetricResult:
         y_hat = _binarize(y_pred.prediction)
         y_true_bin = _binarize(y_true)
@@ -48,10 +52,12 @@ class IoUMetric(BaseMetric):
             },
         )
 
+
 class DiceMetric(BaseMetric):
     @property
     def name(self) -> str:
         return "dice"
+
     def compute(self, y_pred: ModelOutput, y_true: np.ndarray) -> MetricResult:
         y_hat = _binarize(y_pred.prediction)
         y_true_bin = _binarize(y_true)

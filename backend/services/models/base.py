@@ -4,14 +4,18 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict
 
+
 @dataclass(frozen=True)
 class ModelId:
     "Unique identifier for a model instance"
+
     name: str
     version: str
 
+
 class BaseModel(ABC):
     "Core abstraction for all models in the GeoAI Platform"
+
     def __init__(self, model_id: ModelId) -> None:
         self.model_id = model_id
         self._is_loaded = False

@@ -25,7 +25,9 @@ def get_logger(config: AppConfig) -> logging.Logger:
     logger.setLevel(getattr(logging, config.log_level, logging.INFO))
 
     handler = logging.StreamHandler()
-    formatter = logging.Formatter(fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+    formatter = logging.Formatter(
+        fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger

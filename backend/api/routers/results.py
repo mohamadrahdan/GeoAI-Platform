@@ -8,8 +8,11 @@ from backend.api.schemas.results import ResultCreate, ResultOut
 
 router = APIRouter(prefix="/results", tags=["results"])
 
+
 @router.post("", response_model=ResultOut, status_code=status.HTTP_201_CREATED)
-def persist_result(payload: ResultCreate, uow: UnitOfWork = Depends(get_uow)) -> ResultOut:
+def persist_result(
+    payload: ResultCreate, uow: UnitOfWork = Depends(get_uow)
+) -> ResultOut:
     run = uow.runs.get(payload.run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found.")
@@ -31,4 +34,3 @@ def get_result(result_id: str, uow: UnitOfWork = Depends(get_uow)) -> ResultOut:
     if not res:
         raise HTTPException(status_code=404, detail="Result not found.")
     return ResultOut.model_validate(res)
-

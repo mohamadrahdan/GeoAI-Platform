@@ -1,6 +1,7 @@
 import numpy as np
 from core.models.contracts import ModelInput, ModelOutput, SpatialMetadata
 
+
 def test_model_input_output_contract():
     spatial = SpatialMetadata(
         crs="EPSG:4326",

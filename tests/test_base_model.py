@@ -1,5 +1,6 @@
 from backend.services.models.base import BaseModel, ModelId
 
+
 class DummyModel(BaseModel):
 
     def load(self) -> None:
@@ -12,6 +13,7 @@ class DummyModel(BaseModel):
 
     def unload(self) -> None:
         self._is_loaded = False
+
 
 def test_model_lifecycle():
     model = DummyModel(ModelId(name="dummy", version="0.1"))

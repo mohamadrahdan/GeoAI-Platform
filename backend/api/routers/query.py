@@ -9,6 +9,7 @@ from backend.api.schemas.results import ResultOut
 
 router = APIRouter(tags=["query"])
 
+
 @router.get("/datasets/{dataset_id}/runs", response_model=List[RunOut])
 def list_runs_for_dataset(
     dataset_id: str,
@@ -25,6 +26,7 @@ def list_runs_for_dataset(
 
     runs = uow.runs.list_by_dataset(dataset_id, limit=limit, offset=offset)
     return [RunOut.model_validate(r) for r in runs]
+
 
 @router.get("/runs/{run_id}/results", response_model=List[ResultOut])
 def list_results_for_run(
@@ -43,6 +45,7 @@ def list_results_for_run(
     results = uow.results.list_by_run(run_id, limit=limit, offset=offset)
     return [ResultOut.model_validate(x) for x in results]
 
+
 @router.get("/runs", response_model=List[RunOut])
 def query_runs(
     dataset_id: Optional[str] = None,
@@ -59,6 +62,7 @@ def query_runs(
         runs = uow.runs.list(limit=limit, offset=offset)
 
     return [RunOut.model_validate(r) for r in runs]
+
 
 @router.get("/results", response_model=List[ResultOut])
 def query_results(

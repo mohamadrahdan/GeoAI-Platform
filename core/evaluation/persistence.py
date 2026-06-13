@@ -5,18 +5,16 @@ from pathlib import Path
 from typing import List
 from core.evaluation.comparison import RunMetrics
 
+
 class EvaluationStore:
     "Simple file-based persistence for evaluation results"
+
     def __init__(self, root_dir: Path) -> None:
         self._root = root_dir
+
     def save(self, run: RunMetrics) -> Path:
         "Persist evaluation results to JSON file"
-        path = (
-            self._root
-            / "evaluations"
-            / run.model_name
-            / run.version
-        )
+        path = self._root / "evaluations" / run.model_name / run.version
         path.mkdir(parents=True, exist_ok=True)
         file_path = path / f"{run.trace_id}.json"
         with file_path.open("w", encoding="utf-8") as f:
@@ -25,12 +23,7 @@ class EvaluationStore:
 
     def load_all(self, model_name: str, version: str) -> List[RunMetrics]:
         "Load all persisted runs for a model/version"
-        path = (
-            self._root
-            / "evaluations"
-            / model_name
-            / version
-        )
+        path = self._root / "evaluations" / model_name / version
         if not path.exists():
             return []
         runs = []

@@ -1,8 +1,9 @@
-from __future__ import annotations 
-from dataclasses import dataclass 
-from pathlib import Path 
-from typing import Protocol, runtime_checkable 
-import shutil 
+from __future__ import annotations
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Protocol, runtime_checkable
+import shutil
+
 
 @dataclass(frozen=True)
 class ArtifactRef:
@@ -13,17 +14,21 @@ class ArtifactRef:
     def relpath(self) -> Path:
         return Path(self.model_name) / self.version / self.filename
 
+
 @runtime_checkable
 class ArtifactStore(Protocol):
-    def put(self, ref: ArtifactRef, src_path: Path) -> Path: 
+    def put(self, ref: ArtifactRef, src_path: Path) -> Path:
         "Store an artifact file and return the final stored path"
         ...
+
     def get(self, ref: ArtifactRef) -> Path:
         "Return the stored path for an artifact; raise FileNotFoundError if missing"
         ...
+
     def exists(self, ref: ArtifactRef) -> bool:
         "Check artifact existence"
         ...
+
 
 @dataclass
 class LocalArtifactStore:
@@ -53,4 +58,3 @@ class LocalArtifactStore:
 
     def exists(self, ref: ArtifactRef) -> bool:
         return (self.root_dir / ref.relpath()).exists()
-

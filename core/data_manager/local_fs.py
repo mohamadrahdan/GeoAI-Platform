@@ -6,6 +6,7 @@ from typing import Any
 
 from core.data_manager.base import BaseDataManager
 
+
 class LocalFileSystemDataManager(BaseDataManager):
     "Local filesystem-based data manager (MVP)"
 
@@ -46,4 +47,3 @@ class LocalFileSystemDataManager(BaseDataManager):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
         return f"file://{path.as_posix()}"
-

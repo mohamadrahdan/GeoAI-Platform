@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-from dataclasses import dataclass
 from pathlib import Path
 import numpy as np
 import pytest
@@ -13,12 +12,13 @@ from core.inference.schemas import InferenceRequest
 from core.logging.logger import get_module_logger
 from core.models.artifacts import LocalArtifactStore
 from core.models.base import BaseModel
-from core.models.contracts import ModelInput, ModelOutput, SpatialMetadata
+from core.models.contracts import ModelInput, ModelOutput
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.registry import ModelRegistry
 
 import time
 from core.common.exceptions import InferenceTimeoutError
+
 
 # Dummy model for testing
 class DummyModel(BaseModel):
@@ -39,16 +39,20 @@ class DummyModel(BaseModel):
     def on_predict(self, x: ModelInput) -> ModelOutput:
         # Deterministic output: prediction filled with mean of input
         mean_val = float(np.mean(x.data))
-        pred = np.full((1, x.data.shape[1], x.data.shape[2]), mean_val, dtype=np.float32)
+        pred = np.full(
+            (1, x.data.shape[1], x.data.shape[2]), mean_val, dtype=np.float32
+        )
         return ModelOutput(
             prediction=pred,
             spatial=x.spatial,
             confidence=None,
             extra={"dummy": True},
         )
+
     def predict(self, x: ModelInput) -> ModelOutput:
         # Keep predict delegating to the hook used by the base contract
         return self.on_predict(x)
+
 
 # Fixtures
 @pytest.fixture
@@ -73,6 +77,7 @@ def engine(tmp_path: Path) -> InferenceEngine:
     )
     return InferenceEngine(ctx)
 
+
 # Test 1: input_payload
 def test_execute_with_input_payload(engine: InferenceEngine) -> None:
     payload = {
@@ -92,6 +97,7 @@ def test_execute_with_input_payload(engine: InferenceEngine) -> None:
     assert float(resp.output.prediction[0, 0, 0]) == 1.0
     assert "total" in resp.timings_ms
 
+
 # Test 2: file://...json
 def test_execute_with_file_uri(engine: InferenceEngine, tmp_path: Path) -> None:
     payload = {
@@ -108,6 +114,7 @@ def test_execute_with_file_uri(engine: InferenceEngine, tmp_path: Path) -> None:
     resp = engine.execute(req)
     assert resp.output.prediction.shape == (1, 2, 2)
     assert float(resp.output.prediction[0, 0, 0]) == 0.0
+
 
 # Test 3: model not found -> ExecutionError
 def test_execute_model_not_found(tmp_path: Path) -> None:
@@ -137,12 +144,11 @@ def test_execute_model_not_found(tmp_path: Path) -> None:
         engine.execute(req)
 
 
-
-
 class SlowModel(DummyModel):
     def on_predict(self, x: ModelInput) -> ModelOutput:
         time.sleep(0.2)
         return super().on_predict(x)
+
 
 def test_execute_timeout(engine: InferenceEngine, tmp_path: Path) -> None:
     # replace provider model with slow model
@@ -161,11 +167,11 @@ def test_execute_timeout(engine: InferenceEngine, tmp_path: Path) -> None:
     with pytest.raises(InferenceTimeoutError):
         engine.execute(req)
 
-        
 
 class FailingModel(DummyModel):
     def on_predict(self, x: ModelInput) -> ModelOutput:
         raise RuntimeError("boom")
+
 
 def test_execute_predict_failure_wrapped(engine: InferenceEngine) -> None:
     engine._ctx.model_provider.register(FailingModel())
@@ -179,6 +185,7 @@ def test_execute_predict_failure_wrapped(engine: InferenceEngine) -> None:
     with pytest.raises(ExecutionError):
         engine.execute(req)
 
+
 def test_execute_includes_trace(engine: InferenceEngine) -> None:
     payload = {
         "data": np.ones((3, 2, 2), dtype=np.float32).tolist(),
@@ -190,8 +197,11 @@ def test_execute_includes_trace(engine: InferenceEngine) -> None:
     resp = engine.execute(req)
     assert resp.trace_id
     assert len(resp.trace_id) >= 8
-    assert len(resp.events) >= 4  # validate + resolve_version + load_model + load_input + predict
+    assert (
+        len(resp.events) >= 4
+    )  # validate + resolve_version + load_model + load_input + predict
     assert any(e.name == "predict" and e.ok for e in resp.events)
+
 
 def test_trace_logs_are_emitted(engine: InferenceEngine, caplog) -> None:
     payload = {

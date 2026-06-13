@@ -3,6 +3,7 @@ from core.models.base import BaseModel
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.contracts import ModelInput, ModelOutput, SpatialMetadata
 
+
 class DummyModel(BaseModel):
     def __init__(self, metadata: ModelMetadata) -> None:
         super().__init__(metadata)
@@ -20,14 +21,15 @@ class DummyModel(BaseModel):
     def on_release(self) -> None:
         self.released_called += 1
 
+
 def test_lifecycle_enforces_load_and_is_idempotent():
     md = ModelMetadata(
-    name="dummy",
-    task="segmentation",
-    framework="none",
-    version=ModelVersion(0, 0, 1),
-    schema_version="v1",
-)
+        name="dummy",
+        task="segmentation",
+        framework="none",
+        version=ModelVersion(0, 0, 1),
+        schema_version="v1",
+    )
     model = DummyModel(md)
     spatial = SpatialMetadata(crs="EPSG:4326", bbox=(0, 0, 1, 1), resolution=10.0)
     x = ModelInput(data=np.zeros((1, 4, 4)), bands=["B02"], spatial=spatial)

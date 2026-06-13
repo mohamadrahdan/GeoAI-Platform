@@ -5,6 +5,7 @@ from core.models.artifacts import LocalArtifactStore, ArtifactRef
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.registry import ModelRegistry
 
+
 def test_local_artifact_store_put_get_roundtrip() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / "artifacts"
@@ -14,14 +15,17 @@ def test_local_artifact_store_put_get_roundtrip() -> None:
         src = Path(tmp) / "weights.bin"
         src.write_bytes(b"dummy-weights")
 
-        ref = ArtifactRef(model_name="landslide_unet", version="1.0.0", filename="weights.bin")
+        ref = ArtifactRef(
+            model_name="landslide_unet", version="1.0.0", filename="weights.bin"
+        )
         dst = store.put(ref, src)
 
         assert dst.exists()
         assert store.exists(ref) is True
         assert store.get(ref).read_bytes() == b"dummy-weights"
 
-def test_registry_store_and_resolve_artifact() -> None: 
+
+def test_registry_store_and_resolve_artifact() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / "artifacts"
         store = LocalArtifactStore(root_dir=root)

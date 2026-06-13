@@ -5,11 +5,9 @@ from backend.db.models import Run
 from backend.db.uow import UnitOfWork
 from backend.api.schemas.runs import RunCreate, RunOut
 from backend.api.deps import get_uow
-from backend.api.schemas.datasets import DatasetOut
-from backend.db.models import Dataset
-
 
 router = APIRouter(prefix="/runs", tags=["runs"])
+
 
 @router.post("", response_model=RunOut, status_code=status.HTTP_201_CREATED)
 def register_run(payload: RunCreate, uow: UnitOfWork = Depends(get_uow)) -> RunOut:
@@ -26,6 +24,7 @@ def register_run(payload: RunCreate, uow: UnitOfWork = Depends(get_uow)) -> RunO
     )
     uow.runs.add(run)
     return RunOut.model_validate(run)
+
 
 @router.get("/{run_id}", response_model=RunOut)
 def get_run(run_id: str, uow: UnitOfWork = Depends(get_uow)) -> RunOut:

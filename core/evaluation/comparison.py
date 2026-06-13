@@ -2,13 +2,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
+
 @dataclass(frozen=True)
 class RunMetrics:
     "Represents evaluation results of a single run"
+
     trace_id: str
     model_name: str
     version: str
     metrics: Dict[str, float]
+
 
 def compare_runs(
     runs: List[RunMetrics],
@@ -16,13 +19,16 @@ def compare_runs(
     higher_is_better: bool = True,
 ) -> List[RunMetrics]:
     "Sort runs based on a specific metric./Returns sorted list (best first)"
+
     def key_fn(run: RunMetrics) -> float:
         return run.metrics.get(metric_name, float("-inf"))
+
     return sorted(
         runs,
         key=key_fn,
         reverse=higher_is_better,
     )
+
 
 def best_run(
     runs: List[RunMetrics],

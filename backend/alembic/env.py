@@ -7,7 +7,6 @@ from sqlalchemy import engine_from_config, pool
 import sys
 from pathlib import Path
 
-
 # Ensure backend/ is on sys.path so "db.*" imports work when running alembic from backend/
 BASE_DIR = Path(__file__).resolve().parents[1]  # points to backend/
 if str(BASE_DIR) not in sys.path:
@@ -40,10 +39,12 @@ def get_url() -> str:
     This avoids coupling Alembic to the full ServiceContainer bootstrap.
     """
     import os
+
     return os.getenv(
         "DATABASE_URL",
         "postgresql+psycopg2://geoai:geoai@localhost:5432/geoai",
     )
+
 
 def run_migrations_offline() -> None:
     "Run migrations in offline mode (no DBAPI needed)"
@@ -58,6 +59,7 @@ def run_migrations_offline() -> None:
     )
     with context.begin_transaction():
         context.run_migrations()
+
 
 def include_object(object, name, type_, reflected, compare_to):
     # Ignore PostGIS / extension-managed tables
@@ -85,6 +87,7 @@ def run_migrations_online() -> None:
         )
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

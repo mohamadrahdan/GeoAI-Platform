@@ -5,6 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from backend.db.models import Run
 
+
 class RunRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
@@ -19,19 +20,20 @@ class RunRepository:
     # def add(self, run: Run) -> Run:
     #     self._session.add(run)
     #     return run
-    
+
     def add(self, run: Run) -> Run:
         self._session.add(run)
         self._session.flush()
         self._session.refresh(run)
         return run
 
-
     def delete(self, run: Run) -> None:
         self._session.delete(run)
 
     # Domain-specific
-    def list_by_dataset(self, dataset_id: str, limit: int = 100, offset: int = 0) -> Iterable[Run]:
+    def list_by_dataset(
+        self, dataset_id: str, limit: int = 100, offset: int = 0
+    ) -> Iterable[Run]:
         stmt = (
             select(Run)
             .where(Run.dataset_id == dataset_id)

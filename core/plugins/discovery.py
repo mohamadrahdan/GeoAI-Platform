@@ -3,7 +3,6 @@
 from __future__ import annotations
 import importlib
 import pkgutil
-from typing import Type
 from core.plugins.interface import BasePlugin
 from core.plugins.registry import PluginRegistry
 

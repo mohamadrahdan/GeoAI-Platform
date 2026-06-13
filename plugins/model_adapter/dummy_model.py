@@ -4,6 +4,7 @@ from core.models.base import BaseModel
 from core.models.metadata import ModelMetadata, ModelVersion
 from core.models.contracts import ModelInput, ModelOutput
 
+
 class DummyModel(BaseModel):
     def __init__(self) -> None:
         meta = ModelMetadata(

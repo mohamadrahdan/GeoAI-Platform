@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy as np
 from typing import Any
 from importlib import import_module
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 from core.plugins.interface import BasePlugin
 from core.services import get_container
 from core.inference.engine import InferenceContext, InferenceEngine
@@ -12,11 +12,13 @@ from core.inference.schemas import InferenceRequest, VersionSpec
 # Module-level cache so provider/models can survive within the Python process
 _PROVIDER: Optional[InMemoryModelProvider] = None
 
+
 def _load_class(dotted_path: str):
     "Load class from dotted path like plugins.landslide.model.some_model.MyModel"
     module_path, cls_name = dotted_path.rsplit(".", 1)
     module = import_module(module_path)
     return getattr(module, cls_name)
+
 
 def _to_jsonable(obj: Any) -> Any:
     "Convert common non-JSON types (e.g., numpy) into JSON-serializable structures"
@@ -29,6 +31,7 @@ def _to_jsonable(obj: Any) -> Any:
     if isinstance(obj, (list, tuple)):
         return [_to_jsonable(v) for v in obj]
     return obj
+
 
 class ModelAdapterPlugin(BasePlugin):
     """
@@ -47,8 +50,10 @@ class ModelAdapterPlugin(BasePlugin):
       }
     }
     """
+
     name = "model_adapter"
     version = "0.1.0"
+
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         c = get_container()
         global _PROVIDER

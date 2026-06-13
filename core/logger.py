@@ -7,6 +7,7 @@ from core.config.settings import settings
 # Calculate the absolute path of the project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+
 def setup_logging():
     "Configures structured, production-grade logging with log rotation."
     log_dir = PROJECT_ROOT / "logs"
@@ -19,7 +20,7 @@ def setup_logging():
     # Define a standard format for logs
     log_format = logging.Formatter(
         fmt="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S%z"
+        datefmt="%Y-%m-%dT%H:%M:%S%z",
     )
 
     # 1. Console Handler
@@ -28,7 +29,10 @@ def setup_logging():
 
     # 2. File Handler
     file_handler = RotatingFileHandler(
-        filename=str(log_file), maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+        filename=str(log_file),
+        maxBytes=10 * 1024 * 1024,
+        backupCount=5,
+        encoding="utf-8",
     )
     file_handler.setFormatter(log_format)
 
@@ -39,7 +43,7 @@ def setup_logging():
 
     # THE FIX: Forcefully clear any hidden default handlers, then attach ours
     root_logger.handlers.clear()
-    
+
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
 

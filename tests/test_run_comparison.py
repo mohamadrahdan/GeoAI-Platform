@@ -1,5 +1,6 @@
 from core.evaluation.comparison import RunMetrics, compare_runs, best_run
 
+
 def test_compare_runs_sorts_correctly():
     runs = [
         RunMetrics(trace_id="a", model_name="m", version="1", metrics={"iou": 0.5}),
@@ -9,6 +10,7 @@ def test_compare_runs_sorts_correctly():
     sorted_runs = compare_runs(runs, metric_name="iou")
     assert sorted_runs[0].trace_id == "b"
     assert sorted_runs[-1].trace_id == "a"
+
 
 def test_best_run_returns_correct_one():
     runs = [

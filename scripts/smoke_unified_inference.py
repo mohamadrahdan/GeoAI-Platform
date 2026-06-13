@@ -4,6 +4,7 @@ import requests
 
 API_URL = os.getenv("SMOKE_API_URL", "http://localhost:8000")
 
+
 def main() -> int:
     body = {
         "model_class": "plugins.model_adapter.dummy_model.DummyModel",
@@ -18,7 +19,11 @@ def main() -> int:
                     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
                 ],
                 "bands": ["R", "G", "B"],
-                "spatial": {"crs": "EPSG:4326", "bbox": [0, 0, 1, 1], "resolution": 10.0},
+                "spatial": {
+                    "crs": "EPSG:4326",
+                    "bbox": [0, 0, 1, 1],
+                    "resolution": 10.0,
+                },
             },
             "parameters": {},
             "request_id": None,
@@ -35,6 +40,7 @@ def main() -> int:
         raise RuntimeError(f"No output returned. Response: {data}")
     print("Smoke unified inference passed: /inference OK")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

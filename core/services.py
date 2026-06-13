@@ -14,6 +14,7 @@ from core.llm.engine import BaseLLMEngine, NullLLMEngine
 from core.models.registry import ModelRegistry
 from core.models.artifacts import LocalArtifactStore
 
+
 @dataclass
 class ServiceContainer:
     """
@@ -22,21 +23,21 @@ class ServiceContainer:
     - Makes testing easier (swap services)
     - Avoids circular imports across core/backends
     """
+
     config: AppConfig
     logger: Logger
     # Placeholders for Phase 2+ components
     data_manager: BaseDataManager
     cache: SimpleCache
-    #llm_engin: Optional[object] = None
+    # llm_engin: Optional[object] = None
     llm_engine: BaseLLMEngine
     registry: ModelRegistry  # model registry
     plugin_registry: Optional[PluginRegistry] = None
-    
 
     @classmethod
     def build(cls) -> "ServiceContainer":
         config = load_config()
-        logger = get_logger(config) 
+        logger = get_logger(config)
         llm_engine = NullLLMEngine()
         # Plugin registry (rename to avoid confusion)
         plugin_registry = PluginRegistry()
@@ -63,8 +64,11 @@ class ServiceContainer:
             registry=model_registry,
         )
 
-# singleton_style accessor 
+
+# singleton_style accessor
 _container: Optional[ServiceContainer] = None
+
+
 def get_container() -> ServiceContainer:
     """
     Returns a global singleton container.
@@ -74,4 +78,3 @@ def get_container() -> ServiceContainer:
     if _container is None:
         _container = ServiceContainer.build()
     return _container
-

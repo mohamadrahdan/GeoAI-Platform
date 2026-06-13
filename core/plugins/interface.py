@@ -9,6 +9,7 @@ class BasePlugin(ABC):
     Base interface for all plugins.
     Plugins must be stateless or manage their own internal state
     """
+
     name: str
     version: str
 

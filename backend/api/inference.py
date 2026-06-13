@@ -10,15 +10,19 @@ from core.plugins.executor import PluginExecutor
 from core.plugins.errors import PluginError, PluginExecutionError, PluginTimeoutError
 
 router = APIRouter()
+
+
 class UnifiedInferenceRequest(BaseModel):
     "Public API request for inference(this is executed via the model_adapter plugin)"
+
     request: InferenceRequest
     model_class: Optional[str] = Field(
         default=None,
         description="Optional dotted path for a runtime-loadable model class "
-                    "(e.g., plugins.model_adapter.dummy_model.DummyModel).",
+        "(e.g., plugins.model_adapter.dummy_model.DummyModel).",
     )
     timeout_seconds: Optional[float] = Field(default=None)
+
 
 @router.post("/inference")
 def unified_inference(body: UnifiedInferenceRequest, request: Request):
@@ -57,6 +61,8 @@ def unified_inference(body: UnifiedInferenceRequest, request: Request):
     except PluginExecutionError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except KeyError:
-        raise HTTPException(status_code=404, detail="Plugin 'model_adapter' not found")  # should not happen if /plugins shows it
+        raise HTTPException(
+            status_code=404, detail="Plugin 'model_adapter' not found"
+        )  # should not happen if /plugins shows it
     except PluginError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

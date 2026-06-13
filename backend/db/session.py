@@ -8,10 +8,12 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from core.config.settings import load_database_settings
 
+
 def create_db_engine():
     settings = load_database_settings()
     # pool_pre_ping avoids stale connections in long-running services
     return create_engine(settings.url, pool_pre_ping=True, future=True)
+
 
 _ENGINE = create_db_engine()
 
@@ -22,6 +24,7 @@ SessionLocal = sessionmaker(
     expire_on_commit=False,
     class_=Session,
 )
+
 
 @contextmanager
 def db_session() -> Iterator[Session]:

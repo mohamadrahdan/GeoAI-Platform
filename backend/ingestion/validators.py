@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
-from datetime import datetime
 from shapely.geometry import shape
 from shapely.wkt import dumps as wkt_dumps
 
@@ -15,6 +14,7 @@ def ensure_dict(obj: Any) -> Dict[str, Any]:
         raise MetadataValidationError("metadata must be a dict")
     return obj
 
+
 def extract_stac_datetime_iso(md: Dict[str, Any]) -> Optional[str]:
     # STAC usually: md["properties"]["datetime"]
     props = md.get("properties") or {}
@@ -23,6 +23,7 @@ def extract_stac_datetime_iso(md: Dict[str, Any]) -> Optional[str]:
         return None
     # keep it as ISO string; validation can be stricter later
     return str(dt)
+
 
 def extract_stac_footprint_wkt(md: Dict[str, Any]) -> Optional[str]:
     """

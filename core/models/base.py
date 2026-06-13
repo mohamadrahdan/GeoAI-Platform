@@ -1,11 +1,12 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Optional
 from core.models.metadata import ModelMetadata
 from core.models.contracts import ModelInput, ModelOutput
 
+
 class BaseModel(ABC):
     "Framework-agnostic base model with lifecycle hooks"
+
     def __init__(self, metadata: ModelMetadata) -> None:
         self._metadata = metadata
         self._is_loaded: bool = False
@@ -47,18 +48,23 @@ class BaseModel(ABC):
         self.on_release()
         self._is_loaded = False
 
-    #Hooks (override in concrete models)
+    # Hooks (override in concrete models)
     @abstractmethod
     def on_load(self) -> None:
         pass
+
     def on_warmup(self) -> None:
         pass
+
     def on_before_predict(self, x: ModelInput) -> None:
         pass
+
     @abstractmethod
     def on_predict(self, x: ModelInput) -> ModelOutput:
         pass
+
     def on_after_predict(self, y: ModelOutput) -> None:
         pass
+
     def on_release(self) -> None:
         pass
