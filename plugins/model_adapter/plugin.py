@@ -98,7 +98,6 @@ class ModelAdapterPlugin(BasePlugin):
             "trace_id": resp.trace_id,
             "model_name": resp.model_name,
             "version": resp.version,
-            "output": resp.output,
             "timings_ms": resp.timings_ms,
             "tags": resp.tags,
             "events": [e.model_dump() for e in resp.events],
