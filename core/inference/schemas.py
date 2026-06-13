@@ -22,10 +22,8 @@ class InferenceRequest(BaseModel):
     input_uri: Optional[str] = Field(
         default=None,
         description=(
-            "(URI/path to input data (file://... or "
-            "relative path under data_root)"
+            "(URI/path to input data (file://... or " "relative path under data_root)"
         ),
-
     )
     input_payload: Optional[Dict[str, Any]] = Field(
         default=None,
