@@ -37,7 +37,8 @@ class ModelAdapterPlugin(BasePlugin):
     Wraps a BaseModel instance behind the existing plugin execution system.
     Payload contract (MVP):
     {
-      "model_class": "some.dotted.path.MyModel",   # optional (if you want to register a model instance here)
+      # Optional: register a model instance here if needed
+        "model_class": "some.dotted.path.MyModel",
       "request": {
           "model_name": "dummy_model",
           "version": {"strategy": "latest"} | {"strategy": "exact", "value": "1.0.0"},

@@ -5,7 +5,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 import sys
 
-# Ensure backend/ is on sys.path so "db.*" imports work when running alembic from backend/
+# Ensure backend/ is in sys.path for db module resolution
 BASE_DIR = Path(__file__).resolve().parents[1]  # points to backend/
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))

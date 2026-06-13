@@ -22,7 +22,8 @@ class BaseModelProvider(ABC):
 @dataclass
 class InMemoryModelProvider(BaseModelProvider):
     """Simple provider for tests and local experiments.
-    It registers model metadata + versions in the registry, and keeps model instances in memory.
+    It registers model metadata + versions in the registry, and
+    keeps model instances in memory.
     """
 
     registry: ModelRegistry

@@ -110,5 +110,6 @@ def downgrade() -> None:
     op.drop_table("datasets")
     # ### end Alembic commands ###
     op.execute(
-        "CREATE INDEX IF NOT EXISTS idx_results_footprint_geom ON results USING gist (footprint_geom);"
+        "CREATE INDEX IF NOT EXISTS idx_results_footprint_geom "
+        "ON results USING gist (footprint_geom);"
     )

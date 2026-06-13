@@ -37,8 +37,10 @@ class BaseConfig:
         override = os.getenv("DATABASE_URL")
         if override:
             return override
-        return f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-
+        return (
+            f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
 
 class DevelopmentConfig(BaseConfig):
     "Development-specific overrides."
@@ -79,12 +81,11 @@ def get_settings() -> BaseConfig:
 # Global settings object
 settings = get_settings()
 
-
-# Maintained for backward compatibility with backend/db/session.py and backend/db/health.py
+# Maintained for backward compatibility with backend/db/session.py 
+# and backend/db/health.py
 @dataclass(frozen=True)
 class DatabaseSettings:
     url: str
-
 
 def load_database_settings() -> DatabaseSettings:
     return DatabaseSettings(url=settings.DATABASE_URL)

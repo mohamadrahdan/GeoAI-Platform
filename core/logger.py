@@ -19,9 +19,13 @@ def setup_logging():
 
     # Define a standard format for logs
     log_format = logging.Formatter(
-        fmt="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+        fmt=(
+            "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] "
+            "%(message)s"
+        ),
         datefmt="%Y-%m-%dT%H:%M:%S%z",
     )
+
 
     # 1. Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
