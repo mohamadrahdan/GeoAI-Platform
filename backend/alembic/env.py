@@ -1,11 +1,9 @@
 from __future__ import annotations
-import sys
 from pathlib import Path
 from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 import sys
-from pathlib import Path
 
 # Ensure backend/ is on sys.path so "db.*" imports work when running alembic from backend/
 BASE_DIR = Path(__file__).resolve().parents[1]  # points to backend/

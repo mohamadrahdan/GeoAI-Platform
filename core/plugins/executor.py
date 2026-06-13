@@ -3,7 +3,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Type
-from core.plugins.errors import PluginExecutionError
 from core.plugins.interface import BasePlugin
 from core.plugins.registry import PluginRegistry
 from core.logging.logger import Logger

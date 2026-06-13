@@ -5,9 +5,6 @@ from typing import Dict, Tuple
 from core.models.base import BaseModel
 from core.models.metadata import ModelMetadata
 from core.models.registry import ModelRegistry
-from abc import ABC, abstractmethod
-from core.models.base import BaseModel
-
 
 class BaseModelProvider(ABC):
     """Returns a concrete model instance for (name, version)."""

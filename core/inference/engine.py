@@ -3,11 +3,7 @@ from dataclasses import dataclass
 from time import perf_counter
 from typing import Dict, List, Optional
 from uuid import uuid4
-from core.common.exceptions import (
-    DataAccessError,
-    ExecutionError,
-    InferenceTimeoutError,
-)
+from core.common.exceptions import DataAccessError
 from core.data_manager.base import BaseDataManager
 from core.logging.logger import Logger
 from core.models.registry import ModelRegistry
