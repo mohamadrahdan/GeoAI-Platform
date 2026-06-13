@@ -36,7 +36,9 @@ class InferenceEngine:
 
         # 1. Pipeline Execution
         try:
+            s_val = perf_counter()
             req.validate_input()
+            self._log_event("validate", s_val, trace_id, req, events)
             version_str = self._resolve_version(req, trace_id, events)
             model = self._load_model(req, version_str, trace_id, events)
             x = self._load_input(req, trace_id, events)
