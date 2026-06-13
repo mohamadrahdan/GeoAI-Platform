@@ -42,6 +42,7 @@ class BaseConfig:
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 
+
 class DevelopmentConfig(BaseConfig):
     "Development-specific overrides."
 
@@ -81,11 +82,13 @@ def get_settings() -> BaseConfig:
 # Global settings object
 settings = get_settings()
 
-# Maintained for backward compatibility with backend/db/session.py 
+
+# Maintained for backward compatibility with backend/db/session.py
 # and backend/db/health.py
 @dataclass(frozen=True)
 class DatabaseSettings:
     url: str
+
 
 def load_database_settings() -> DatabaseSettings:
     return DatabaseSettings(url=settings.DATABASE_URL)

@@ -26,7 +26,6 @@ def setup_logging():
         datefmt="%Y-%m-%dT%H:%M:%S%z",
     )
 
-
     # 1. Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(log_format)

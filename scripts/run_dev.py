@@ -1,12 +1,12 @@
 # Development runner with explicit project root in PYTHONPATH
 import sys
 from pathlib import Path
+import uvicorn
 
 # Add project root to PYTHONPATH
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-import uvicorn
 
 if __name__ == "__main__":
     uvicorn.run(

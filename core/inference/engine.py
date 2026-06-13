@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Dict, List, Optional, Any
+from typing import List, Optional, Any
 from uuid import uuid4
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from core.common.exceptions import (
@@ -133,7 +133,7 @@ class InferenceEngine:
             self._log_event(
                 "predict", s, trace_id, req, events, ok=False, detail=str(e)
             )
-            raise ExecutionError(f"Prediction failed")
+            raise ExecutionError("Prediction failed")
 
     def _get_timeout(self, req: InferenceRequest) -> Optional[float]:
         val = (
