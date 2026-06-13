@@ -1,17 +1,20 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from uuid import uuid4
-from core.common.exceptions import DataAccessError
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from core.common.exceptions import (
+    DataAccessError,
+    InferenceTimeoutError,
+    ExecutionError,
+)
 from core.data_manager.base import BaseDataManager
 from core.logging.logger import Logger
 from core.models.registry import ModelRegistry
 from core.inference.io import load_input_from_request
 from core.inference.providers import BaseModelProvider
 from core.inference.schemas import InferenceRequest, InferenceResponse, TraceEvent
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from core.common.exceptions import InferenceTimeoutError, ExecutionError
 
 
 @dataclass(frozen=True)
@@ -26,173 +29,164 @@ class InferenceEngine:
     def __init__(self, ctx: InferenceContext) -> None:
         self._ctx = ctx
 
-    def _make_trace_id(self, req: InferenceRequest) -> str:
-        # Prefer request_id if provided; otherwise generate a stable trace_id
-        base = req.request_id.strip() if req.request_id else ""
-        if base:
-            return base
-        return uuid4().hex[:12]
-
     def execute(self, req: InferenceRequest) -> InferenceResponse:
         t0 = perf_counter()
         trace_id = self._make_trace_id(req)
         events: List[TraceEvent] = []
-        timings: Dict[str, float] = {}
 
-        def log_event(
-            name: str, start: float, ok: bool = True, detail: Optional[str] = None
-        ) -> None:
-            ms = (perf_counter() - start) * 1000.0
-            events.append(TraceEvent(name=name, ms=ms, ok=ok, detail=detail))
-            # Key-value style (works with std logging formatter)
-            if ok:
-                self._ctx.logger.info(
-                    "trace=%s stage=%s ok=1 ms=%.2f model=%s request_id=%s",
-                    trace_id,
-                    name,
-                    ms,
-                    req.model_name,
-                    req.request_id,
-                )
-            else:
-                self._ctx.logger.error(
-                    "trace=%s stage=%s ok=0 ms=%.2f model=%s request_id=%s detail=%s",
-                    trace_id,
-                    name,
-                    ms,
-                    req.model_name,
-                    req.request_id,
-                    detail,
-                )
-
-        self._ctx.logger.info(
-            "trace=%s stage=start ok=1 model=%s request_id=%s",
-            trace_id,
-            req.model_name,
-            req.request_id,
-        )
-
-        # validate
-        s = perf_counter()
+        # 1. Pipeline Execution
         try:
             req.validate_input()
-            log_event("validate", s, ok=True)
+            version_str = self._resolve_version(req, trace_id, events)
+            model = self._load_model(req, version_str, trace_id, events)
+            x = self._load_input(req, trace_id, events)
+            y = self._predict(req, model, x, version_str, trace_id, events)
+        except (DataAccessError, InferenceTimeoutError):
+            raise
         except Exception as e:
-            log_event("validate", s, ok=False, detail=f"{type(e).__name__}: {e}")
-            raise ExecutionError("Invalid inference request.") from e
+            raise ExecutionError(f"Inference failed: {str(e)}") from e
 
-        # resolve_version
+        # 2. Finalize
+        return self._build_response(req, trace_id, y, version_str, events, t0)
+
+    def _make_trace_id(self, req: InferenceRequest) -> str:
+        return req.request_id.strip() if req.request_id else uuid4().hex[:12]
+
+    def _resolve_version(
+        self, req: InferenceRequest, trace_id: str, events: List[TraceEvent]
+    ) -> str:
         s = perf_counter()
         try:
-            version_strategy = (
+            strategy = (
                 "latest"
                 if req.version.strategy == "latest"
                 else (req.version.value or "")
             )
-            resolved = self._ctx.registry.resolve_version(
-                req.model_name, version_strategy
+            resolved = self._ctx.registry.resolve_version(req.model_name, strategy)
+            self._log_event(
+                "resolve_version", s, trace_id, req, events, detail=str(resolved)
             )
-            version_str = str(resolved)
-            log_event("resolve_version", s, ok=True, detail=version_str)
+            return str(resolved)
         except Exception as e:
-            log_event("resolve_version", s, ok=False, detail=f"{type(e).__name__}: {e}")
-            raise ExecutionError(
-                f"Failed to resolve model version for {req.model_name} (strategy={version_strategy})"
-            ) from e
+            self._log_event(
+                "resolve_version", s, trace_id, req, events, ok=False, detail=str(e)
+            )
+            raise ExecutionError(f"Version resolution failed for {req.model_name}")
 
-        # load_model
+    def _load_model(
+        self,
+        req: InferenceRequest,
+        version: str,
+        trace_id: str,
+        events: List[TraceEvent],
+    ) -> Any:
         s = perf_counter()
         try:
-            model = self._ctx.model_provider.get(req.model_name, version_str)
-            log_event("load_model", s, ok=True)
+            model = self._ctx.model_provider.get(req.model_name, version)
+            self._log_event("load_model", s, trace_id, req, events)
+            return model
         except Exception as e:
-            log_event("load_model", s, ok=False, detail=f"{type(e).__name__}: {e}")
-            raise ExecutionError(
-                f"Failed to load model instance: {req.model_name}@{version_str}"
-            ) from e
+            self._log_event(
+                "load_model", s, trace_id, req, events, ok=False, detail=str(e)
+            )
+            raise ExecutionError(f"Model load failed: {req.model_name}")
 
-        # load_input
+    def _load_input(
+        self, req: InferenceRequest, trace_id: str, events: List[TraceEvent]
+    ) -> Any:
         s = perf_counter()
         try:
             x = load_input_from_request(req=req, data_manager=self._ctx.data_manager)
-            log_event("load_input", s, ok=True)
-        except DataAccessError as e:
-            log_event("load_input", s, ok=False, detail=f"{type(e).__name__}: {e}")
-            raise
+            self._log_event("load_input", s, trace_id, req, events)
+            return x
         except Exception as e:
-            log_event("load_input", s, ok=False, detail=f"{type(e).__name__}: {e}")
-            raise DataAccessError("Failed to load inference input.") from e
+            self._log_event(
+                "load_input", s, trace_id, req, events, ok=False, detail=str(e)
+            )
+            raise DataAccessError("Failed to load input.")
 
-        # predict(Read optional timeout from request parameters)
-        timeout_s_raw = (
+    def _predict(
+        self,
+        req: InferenceRequest,
+        model: Any,
+        x: Any,
+        version: str,
+        trace_id: str,
+        events: List[TraceEvent],
+    ) -> Any:
+        s = perf_counter()
+        timeout = self._get_timeout(req)
+        try:
+            if timeout is None:
+                y = model.predict(x)
+            else:
+                with ThreadPoolExecutor(max_workers=1) as ex:
+                    y = ex.submit(model.predict, x).result(timeout=timeout)
+            self._log_event("predict", s, trace_id, req, events)
+            return y
+        except FuturesTimeoutError as e:
+            self._log_event(
+                "predict", s, trace_id, req, events, ok=False, detail="Timeout"
+            )
+            raise InferenceTimeoutError(f"Timed out after {timeout}s") from e
+        except Exception as e:
+            self._log_event(
+                "predict", s, trace_id, req, events, ok=False, detail=str(e)
+            )
+            raise ExecutionError(f"Prediction failed")
+
+    def _get_timeout(self, req: InferenceRequest) -> Optional[float]:
+        val = (
             req.parameters.get("timeout_s")
             if isinstance(req.parameters, dict)
             else None
         )
-        timeout_s = float(timeout_s_raw) if timeout_s_raw is not None else None
+        return float(val) if val is not None else None
 
-        s = perf_counter()
-        try:
-            if timeout_s is None:
-                y = model.predict(x)
-            else:
-                # Run predict in a separate thread to enforce a hard timeout
-                with ThreadPoolExecutor(max_workers=1) as ex:
-                    fut = ex.submit(model.predict, x)
-                    try:
-                        y = fut.result(timeout=timeout_s)
-                    except FuturesTimeoutError as e:
-                        raise InferenceTimeoutError(
-                            f"Inference timed out after {timeout_s:.3f}s for {req.model_name}@{version_str}"
-                        ) from e
-
-            log_event("predict", s, ok=True)
-
-        except InferenceTimeoutError as e:
-            log_event("predict", s, ok=False, detail=str(e))
-            raise
-
-        except Exception as e:
-            log_event("predict", s, ok=False, detail=f"{type(e).__name__}: {e}")
-            raise ExecutionError(
-                f"Inference execution failed for {req.model_name}@{version_str}"
-            ) from e
-
-        # build timings from events
-        for ev in events:
-            timings[ev.name] = ev.ms
-
-        # compute total execution time
-        total_ms = (perf_counter() - t0) * 1000.0
-        timings["total"] = total_ms
-
-        # final log
-        self._ctx.logger.info(
-            "trace=%s stage=end ok=1 total_ms=%.2f model=%s version=%s request_id=%s",
+    def _log_event(
+        self,
+        name: str,
+        start: float,
+        trace_id: str,
+        req: InferenceRequest,
+        events: List[TraceEvent],
+        ok: bool = True,
+        detail: Optional[str] = None,
+    ) -> None:
+        ms = (perf_counter() - start) * 1000.0
+        events.append(TraceEvent(name=name, ms=ms, ok=ok, detail=detail))
+        log_func = self._ctx.logger.info if ok else self._ctx.logger.error
+        log_func(
+            "trace=%s stage=%s ok=%d ms=%.2f model=%s request_id=%s detail=%s",
             trace_id,
-            total_ms,
+            name,
+            int(ok),
+            ms,
             req.model_name,
-            version_str,
             req.request_id,
+            detail,
         )
 
-        total_ms = (perf_counter() - t0) * 1000
-        timings["total"] = total_ms
+    def _build_response(
+        self,
+        req: InferenceRequest,
+        trace_id: str,
+        y: Any,
+        version: str,
+        events: List[TraceEvent],
+        t0: float,
+    ) -> InferenceResponse:
+        timings = {ev.name: ev.ms for ev in events}
+        timings["total"] = (perf_counter() - t0) * 1000.0
 
         self._ctx.logger.info(
-            "trace=%s stage=end ok=1 total_ms=%.2f model=%s version=%s request_id=%s",
-            trace_id,
-            total_ms,
-            req.model_name,
-            version_str,
-            req.request_id,
+            "trace=%s stage=end total_ms=%.2f", trace_id, timings["total"]
         )
-
         return InferenceResponse(
             request_id=req.request_id,
             trace_id=trace_id,
             model_name=req.model_name,
-            version=version_str,
+            version=version,
             output=y,
             timings_ms=timings,
             events=events,

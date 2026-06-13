@@ -1,9 +1,6 @@
 from __future__ import annotations
-
 from typing import Any, Dict, Optional, List
-
 from pydantic import BaseModel, Field, ConfigDict
-
 from core.models.contracts import ModelOutput
 
 
@@ -51,6 +48,7 @@ class TraceEvent(BaseModel):
     ms: float
     ok: int
     error: Optional[str] = None
+    detail: Optional[str] = None
 
 
 class InferenceResponse(BaseModel):
