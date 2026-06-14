@@ -55,6 +55,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 20
+      start_period: 40s
     profiles: ["dev"]
 
 volumes:
