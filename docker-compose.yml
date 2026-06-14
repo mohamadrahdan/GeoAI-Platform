@@ -1,6 +1,7 @@
 services:
   db:
     image: postgis/postgis:15-3.3
+    restart: unless-stopped
     container_name: geoai-db
     env_file:
       - .env
@@ -22,6 +23,7 @@ services:
 
   migrate:
     image: geoai-backend:dev
+    restart: unless-stopped
     container_name: geoai-migrate
     env_file:
       - .env
