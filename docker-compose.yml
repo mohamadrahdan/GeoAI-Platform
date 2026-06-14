@@ -38,6 +38,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    restart: unless-stopped
     image: geoai-backend:dev
     container_name: geoai-backend
     env_file:
