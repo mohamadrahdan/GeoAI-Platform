@@ -53,7 +53,10 @@ class ASGIMetricsAndErrorMiddleware:
                 response_body = json.dumps(
                     {
                         "status": "error",
-                        "message": "An unexpected internal error occurred. Our engineers have been notified",
+                        "message": (
+                            "An unexpected internal error occurred. "
+                            "Our engineers have been notified."
+                        ),
                         "error_code": "INTERNAL_SERVER_ERROR",
                     }
                 ).encode("utf-8")
