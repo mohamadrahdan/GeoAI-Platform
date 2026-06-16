@@ -10,6 +10,7 @@ from backend.api.routers.results import router as results_router
 from backend.api.routers.query import router as query_router
 from backend.api.inference import router as inference_router
 from fastapi.middleware.cors import CORSMiddleware
+from core.middleware import MetricsMiddleware
 
 
 def create_app() -> FastAPI:
@@ -25,6 +26,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Register the centralized metrics stopwatch
+    app.add_middleware(MetricsMiddleware)
 
     # Initialize core container once and store it in app state
     container = get_container()
