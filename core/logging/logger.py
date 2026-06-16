@@ -1,10 +1,9 @@
 from __future__ import annotations
-
 import logging
 from typing import Optional, Protocol
-
 from core.config.loader import AppConfig, load_config
-
+# Import the structured JSON formatter from the main logger file
+from core.logger import StructuredJsonFormatter
 
 class Logger(Protocol):
     def info(self, msg: str, *args, **kwargs) -> None: ...
@@ -15,19 +14,17 @@ class Logger(Protocol):
 
 def get_logger(config: AppConfig) -> logging.Logger:
     """
-    App-level logger factory.
-    Configures the 'geoai' logger once and then reuses it.
+    App-level logger factory
+    Configures the 'geoai' logger once and then reuses it
     """
     logger = logging.getLogger("geoai")
     if logger.handlers:
         return logger
 
     logger.setLevel(getattr(logging, config.log_level, logging.INFO))
-
     handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-    )
+    # Apply JSON format instead of the legacy plain text format
+    formatter = StructuredJsonFormatter()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger
@@ -35,8 +32,8 @@ def get_logger(config: AppConfig) -> logging.Logger:
 
 def get_module_logger(name: str, config: Optional[AppConfig] = None) -> Logger:
     """
-    Module-scoped logger helper.
-    Avoids circular imports by calling get_logger locally.
+    Module-scoped logger helper
+    Avoids circular imports by calling get_logger locally
     """
     cfg = config or load_config()
     base_logger = get_logger(cfg)
