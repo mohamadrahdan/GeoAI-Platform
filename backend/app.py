@@ -10,7 +10,7 @@ from backend.api.routers.results import router as results_router
 from backend.api.routers.query import router as query_router
 from backend.api.inference import router as inference_router
 from fastapi.middleware.cors import CORSMiddleware
-from core.middleware import MetricsMiddleware
+from core.middleware import ASGIMetricsAndErrorMiddleware
 
 
 def create_app() -> FastAPI:
@@ -27,8 +27,11 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Register the centralized metrics stopwatch
-    app.add_middleware(MetricsMiddleware)
+    app.add_middleware(ASGIMetricsAndErrorMiddleware)
+
+    @app.get("/crash", tags=["system"])
+    async def simulate_crash():
+        raise ValueError("Simulated catastrophic failure in the AI model pipeline!")
 
     # Initialize core container once and store it in app state
     container = get_container()
