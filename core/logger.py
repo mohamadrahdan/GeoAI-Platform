@@ -80,14 +80,11 @@ def setup_logging():
 
     third_party_loggers = ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"]
 
-    third_party_loggers = ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"]
-
     for logger_name in third_party_loggers:
         ext_logger = logging.getLogger(logger_name)
         ext_logger.handlers.clear()
-        ext_logger.addHandler(console_handler)
-        ext_logger.addHandler(file_handler)
         ext_logger.propagate = False
+        ext_logger.setLevel(logging.CRITICAL)
 
     logging.info(
         "Structured JSON Logging initialized successfully.",
