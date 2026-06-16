@@ -80,12 +80,7 @@ def setup_logging():
 
     third_party_loggers = ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"]
 
-    third_party_loggers = [
-        "uvicorn",
-        "uvicorn.error",
-        "uvicorn.access",
-        "fastapi"
-    ]
+    third_party_loggers = ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"]
 
     for logger_name in third_party_loggers:
         ext_logger = logging.getLogger(logger_name)
