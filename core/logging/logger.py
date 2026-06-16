@@ -2,8 +2,10 @@ from __future__ import annotations
 import logging
 from typing import Optional, Protocol
 from core.config.loader import AppConfig, load_config
+
 # Import the structured JSON formatter from the main logger file
 from core.logger import StructuredJsonFormatter
+
 
 class Logger(Protocol):
     def info(self, msg: str, *args, **kwargs) -> None: ...

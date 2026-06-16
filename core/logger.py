@@ -9,8 +9,10 @@ from core.config.settings import settings
 # Calculate the absolute path of the project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+
 class StructuredJsonFormatter(logging.Formatter):
     "Custom formatter to serialize log records into JSON format"
+
     def format(self, record: logging.LogRecord) -> str:
         log_obj = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -21,16 +23,16 @@ class StructuredJsonFormatter(logging.Formatter):
             "line": record.lineno,
             "message": record.getMessage(),
         }
-        
+
         # Inject exception details if an error occurred
         if record.exc_info:
             log_obj["exception"] = self.formatException(record.exc_info)
-            
+
         # Type-safe extraction of dynamic extra fields to resolve linter warnings
         extra_metadata = getattr(record, "extra_fields", None)
         if isinstance(extra_metadata, dict):
             log_obj.update(extra_metadata)
-            
+
         return json.dumps(log_obj, ensure_ascii=False)
 
 
@@ -76,21 +78,16 @@ def setup_logging():
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
 
-    third_party_loggers = [
-        "uvicorn",
-        "uvicorn.error",
-        "uvicorn.access",
-        "fastapi"
-    ]
-    
+    third_party_loggers = ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"]
+
     for logger_name in third_party_loggers:
         l = logging.getLogger(logger_name)
         l.handlers.clear()
         l.addHandler(console_handler)
         l.addHandler(file_handler)
-        l.propagate = False 
+        l.propagate = False
 
     logging.info(
-        "Structured JSON Logging initialized successfully.", 
-        extra={"extra_fields": {"log_level": settings.LOG_LEVEL}}
+        "Structured JSON Logging initialized successfully.",
+        extra={"extra_fields": {"log_level": settings.LOG_LEVEL}},
     )
