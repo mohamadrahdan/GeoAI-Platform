@@ -23,7 +23,7 @@ services:
 
   migrate:
     image: geoai-backend:dev
-    restart: unless-stopped
+    restart: on-failure
     container_name: geoai-migrate
     env_file:
       - .env
@@ -50,6 +50,7 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+        
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1"]
       interval: 10s
@@ -57,6 +58,7 @@ services:
       retries: 20
       start_period: 40s
     profiles: ["dev"]
+    command: uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload --no-access-log
 
 volumes:
   geoai_pgdata:
