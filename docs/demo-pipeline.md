@@ -123,6 +123,3 @@ The purpose of this workflow is to validate the platform architecture independen
 Machine learning models can later be trained in dedicated environments such as Kaggle, cloud GPUs, or research clusters and integrated through the existing plugin and inference infrastructure.
 
 Because of this separation, the platform can evolve independently from any individual model implementation.
-
-```
-```
