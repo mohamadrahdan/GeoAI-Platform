@@ -56,3 +56,37 @@ This package is not intended to represent:
 * The Padena research dataset
 
 Real models can later be trained in Kaggle, cloud GPU environments, or research infrastructure and then integrated through the same model and plugin architecture.
+
+## Running the demo
+
+Start the platform first:
+
+```bash
+docker compose --profile dev up -d --build
+```
+
+Then run the demo script:
+
+```bash
+python scripts/run_demo.py
+```
+
+### Windows PowerShell
+
+`make` is not installed by default on many Windows systems.
+
+Use the direct commands above from PowerShell instead of relying on Makefile targets:
+
+```powershell
+docker compose --profile dev up -d --build
+python scripts/run_demo.py
+```
+
+### Linux and macOS
+
+If `make` is available, the same workflow can be run through:
+
+```bash
+make up
+make demo
+```

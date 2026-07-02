@@ -1,4 +1,4 @@
-.PHONY: up down logs ps migrate smoke reset-volumes
+.PHONY: up down logs ps migrate smoke demo reset-volumes
 
 up:
 	docker compose --profile dev up -d --build
@@ -13,7 +13,10 @@ migrate:
 	docker compose --profile dev up migrate
 
 smoke:
-	python backend/scripts/smoke_test.py
+	python scripts/smoke_test.py
+
+demo:
+	python scripts/run_demo.py
 
 down:
 	docker compose --profile dev down
