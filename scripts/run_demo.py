@@ -17,9 +17,7 @@ REQUEST_TIMEOUT_SECONDS = 20
 def load_demo_request() -> dict[str, Any]:
     "Load the version-controlled demo request fixture"
     if not DEMO_REQUEST_PATH.exists():
-        raise FileNotFoundError(
-            f"Demo request file was not found: {DEMO_REQUEST_PATH}"
-        )
+        raise FileNotFoundError(f"Demo request file was not found: {DEMO_REQUEST_PATH}")
 
     try:
         payload = json.loads(DEMO_REQUEST_PATH.read_text(encoding="utf-8"))
@@ -116,9 +114,7 @@ def run_inference(payload: dict[str, Any]) -> dict[str, Any]:
         raise RuntimeError(f"Unexpected demo status: {data}")
 
     if data.get("plugin") != "model_adapter":
-        raise RuntimeError(
-            f"Unexpected plugin in response: {data.get('plugin')}"
-        )
+        raise RuntimeError(f"Unexpected plugin in response: {data.get('plugin')}")
 
     result = data.get("result")
 
