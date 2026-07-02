@@ -1,0 +1,44 @@
+{
+"model_class": "plugins.model_adapter.dummy_model.DummyModel",
+"timeout_seconds": 10,
+"request": {
+"model_name": "dummy_model",
+"version": {
+"strategy": "latest",
+"value": null
+},
+"input_payload": {
+"data": [
+[
+[1, 1, 1, 1],
+[1, 1, 1, 1],
+[1, 1, 1, 1],
+[1, 1, 1, 1]
+],
+[
+[1, 1, 1, 1],
+[1, 1, 1, 1],
+[1, 1, 1, 1],
+[1, 1, 1, 1]
+],
+[
+[1, 1, 1, 1],
+[1, 1, 1, 1],
+[1, 1, 1, 1],
+[1, 1, 1, 1]
+]
+],
+"bands": ["R", "G", "B"],
+"spatial": {
+"crs": "EPSG:4326",
+"bbox": [0, 0, 1, 1],
+"resolution": 10.0
+}
+},
+"parameters": {},
+"request_id": null,
+"tags": {
+"source": "demo-package"
+}
+}
+}
