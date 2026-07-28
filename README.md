@@ -473,3 +473,7 @@ This repository represents an actively developed portfolio project.
 The core architecture, local Docker workflow, plugin execution model, model lifecycle foundation, persistence layer, reproducible demo, and frontend MVP have been implemented.
 
 The next stage is not to rebuild the platform from scratch, but to progressively connect it to real geospatial data, trained models, richer visualisation, and more production-oriented operational workflows.
+
+## License
+
+This project is released under the MIT License. See the [LICENSE](LICENSE) file for details.

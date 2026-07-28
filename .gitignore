@@ -182,4 +182,10 @@ cython_debug/
 /.vscode
 tree.text
 
-echo "logs/" >> .gitignore
+# Local generated project bundles
+all_code.txt
+tree.text
+bundle.py
+
+# Local runtime logs
+logs/
